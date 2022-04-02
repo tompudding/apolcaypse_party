@@ -1,0 +1,95 @@
+# Sample, end sample (0 for same), instrument, note
+706, 0, horn, a  #Honk
+4424, 0, strings, a # 1-2-3-4
+4717.25, 0, strings, b
+5010.5, 0, strings, c
+5303.75, 0, strings, d
+5597, 0, strings, e # 1-2-3
+5885.25, 0, strings, c
+6173.5, 0, strings, e
+#gap
+6750, 0, strings, d.25 # 1-2-3
+7032.75, 0, strings, b
+7315.5, 0, strings, d
+#gap
+7881, 0, strings, c.75 # 1-2-3
+8169.25, 0, strings, a.75
+8457.5, 0, strings, d
+#gap
+9034, 0, strings, a # 1-2-3-4
+9320.5, 0, strings, b.25
+9607.0, 0, strings, c
+9893.5, 0, strings, d
+10180, 0, strings, e
+10454.25, 0, strings, c
+10728.5, 0, strings, e
+11002.75, 0, strings, h
+11277, 0, strings, g
+11561.75, 0, strings, e
+11846.5, 0, strings, c
+12131.25, 0, strings, e
+12416, 500, strings, g
+
+13526, 0, strings, a # 1-2-3-4
+13799.5, 0, strings, b
+14073.0, 0, strings, c
+14346.5, 0, strings, d
+14620, 0, strings, e # 1-2-3
+14897, 0, strings, c
+15174, 0, strings, e
+#gap
+15728, 0, strings, d.25 # 1-2-3
+16006.25, 0, strings, b
+16284.5, 0, strings, d
+#gap
+16841, 0, strings, c.75 # 1-2-3
+17124.25, 0, strings, a.75
+17407.5, 0, strings, d
+#gap
+17974, 0, strings, a # 1-2-3-4
+18247.25, 0, strings, b.25
+18520.5, 0, strings, c
+18793.75, 0, strings, d
+19067.0, 0, strings, e
+19340.25, 0, strings, c
+19613.5, 0, strings, e
+19886.75, 0, strings, h
+20160.0, 0, strings, g
+20433.25, 0, strings, e
+20706.5, 0, strings, c
+20979.75, 0, strings, e
+21253, 500, strings, g
+
+4424, 0, horn, a
+5010.5, 0, horn, e
+5597, 0, horn, a
+6173.5, 0, horn, e
+6750, 0, horn, a
+7315.5, 0, horn, e
+7881, 0, horn, a
+8457.5, 0, horn, e
+9034, 0, horn, a
+9607.0, 0, horn, e
+10180, 0, horn, a
+10728.5, 0, horn, e
+11277, 0, horn, c
+11846.5, 0, horn, g
+12416, 0, horn, c
+12985.5, 0, horn, g
+
+13526, 0, horn, a
+14073.0, 0, horn, e
+14620, 0, horn, a
+15174, 0, horn, e
+15728, 0, horn, a
+16284.5, 0, horn, e
+16841, 0, horn, a
+17407.5, 0, horn, e
+17974, 0, horn, a
+18520.5, 0, horn, e
+19067.0, 0, horn, a
+19613.5, 0, horn, e
+20160.0, 0, horn, c
+20706.5, 0, horn, g
+21253, 0, horn, c
+21799.5, 500, horn, g

@@ -1,0 +1,1 @@
+resource/sprites/crate.png:resource/atlas_0.png:0:480.0:32:32

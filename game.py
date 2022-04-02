@@ -163,6 +163,7 @@ class NoteTiming:
                     continue
                 ms, duration, instrument, note = line.split(",")
                 ms, duration = (float(v) for v in (ms, duration))
+                instrument, note = (v.strip() for v in (instrument, note))
                 note = Note(ms, duration, instrument, note)
                 if interval:
                     diff = (note.time - interval[0].time) / interval[2]
@@ -193,6 +194,12 @@ class NoteTiming:
 
         self.current_play = []
 
+    def get_all_notes(self, instruments):
+        for note in self.notes:
+
+            if note.instrument in instruments:
+                yield note
+
     @property
     def current(self):
         try:
@@ -204,9 +211,219 @@ class NoteTiming:
         self.current_note += 1
 
 
+class Line(object):
+    def __init__(self, parent, start, end, colour=(1, 0, 0, 1)):
+        self.parent = parent
+        self.line = drawing.Line(globals.line_buffer)
+        self.line.set_colour(colour)
+
+        self.set(start, end)
+
+    def set_start(self, start):
+        self.start = start
+        self.update()
+
+    def set_end(self, end):
+        self.end = end
+        self.update()
+
+    def set(self, start, end):
+        self.start = start
+        self.end = end
+        self.update()
+
+    def update(self):
+        if self.start and self.end:
+            self.line.set_vertices(self.start, self.end, 6)
+
+    def enable(self):
+        self.line.enable()
+
+    def disable(self):
+        self.line.disable()
+
+
+def letter_from_note(note):
+
+    letter = {
+        "horn": {"a": "a", "e": "d", "c": "q", "g": "e"},
+        "strings": {
+            "a": "1",
+            "b": "2",
+            "c": "3",
+            "d": "4",
+            "e": "5",
+            "f": "6",
+            "g": "7",
+            "h": "8",
+            "d.25": "9",
+            "b.25": "0",
+            "a.75": "-",
+            "c.75": "*",
+        },
+    }[note.instrument][note.note]
+
+    return letter
+
+
+class Block:
+    def __init__(self, time, note, size, pos, speed):
+        self.time = time
+        self.note = note
+        self.quad = None
+        self.letter = None
+        self.start_pos = pos
+        self.speed = speed
+        self.size = size
+        self.pos = self.start_pos
+        self.open = False
+        self.done = False
+        self.hit = False
+
+    def update(self, music_pos):
+        if self.done:
+            return self.done
+
+        if self.quad is None:
+            # The first time we're called we can grab a qua
+            self.quad = drawing.Quad(
+                globals.quad_buffer,
+                tc=globals.current_view.atlas.texture_coords("resource/sprites/crate.png"),
+            )
+            letter = letter_from_note(self.note)
+            self.key = ord(letter)
+            self.letter = globals.text_manager.letter(letter, drawing.texture.TextTypes.SCREEN_RELATIVE)
+
+        elapsed = music_pos - self.time
+        moved = elapsed * self.speed
+        self.pos = self.start_pos - Point(0, moved)
+        tr = self.pos + self.size
+
+        self.quad.set_vertices(self.pos, tr, 0)
+        margin = self.size * 0.2
+        self.letter.set_vertices(self.pos + margin, tr - margin, 1)
+
+        self.done = tr.y <= 0
+        return self.done
+
+    def mark_hit(self):
+        self.hit = True
+
+    def delete(self):
+        self.done = True
+        if self.quad:
+            self.quad.delete()
+            self.quad = None
+        if self.letter:
+            self.letter.delete()
+            self.letter = None
+
+
+class Track:
+    speed = 0.6  # heights per second. I.e 0.5 = take 2 seconds to transit the whole the tack
+    window = 100
+
+    def __init__(self, parent, pos, width, notes):
+        self.parent = parent
+        self.region = ui.Border(
+            parent, Point(pos, 0), Point(pos + width, 1), colour=(1, 1, 1, 1), line_width=1
+        )
+        # Absolute speed is pixels per ms
+        self.absolute_speed = (self.speed * self.region.absolute.size[1]) / 1000
+        self.absolute_line_pos = parent.get_absolute(Point(0, parent.line_pos)).y
+
+        print(f"{self.absolute_speed=} {self.absolute_line_pos=}"),
+
+        self.notes = list(notes)
+
+        self.starts = []
+
+        transit_pixels = self.region.absolute.size[1] - self.absolute_line_pos
+        transit_ms = transit_pixels / self.absolute_speed
+        block_size = self.region.absolute.size[0] * 0.5
+
+        print(f"{transit_ms=}", self.notes)
+
+        for note in self.notes:
+            # The time this wants introducing is the time that it should cross the line minus the amount of
+            # time that it will take to go from the top to the line pos
+            time = note.time - transit_ms
+            self.starts.append(
+                Block(
+                    time,
+                    note,
+                    size=Point(block_size, block_size),
+                    pos=self.region.absolute.top_left
+                    + Point((self.region.absolute.size[0] - block_size) / 2, 0),
+                    speed=self.absolute_speed,
+                )
+            )
+
+        self.current_starts = self.starts[::]
+        self.in_flight = []
+
+        self.open_by_key = {}
+
+    def get_blocks(self, pos):
+        for i, note in enumerate(self.current_starts):
+            if note.time <= pos:
+                yield note
+            else:
+                self.current_starts = self.current_starts[i:]
+                return
+
+        self.current_starts = []
+
+    def update(self, t, music_pos):
+        # Do we need to start drawing any new blocks?
+        for new_block in self.get_blocks(music_pos):
+            self.in_flight.append(new_block)
+
+        # Update the position of any existing blocks
+        finished_blocks = []
+        new_in_flight = []
+
+        for block in self.in_flight:
+            done = block.update(music_pos)
+
+            if done:
+                finished_blocks.append(block)
+                block.delete()
+                if not block.hit:
+                    self.parent.miss(block)
+                try:
+                    del self.open_by_key[block.key]
+                except KeyError:
+                    pass
+            else:
+                new_in_flight.append(block)
+                # They become open window milliseconds before their target time
+                if not block.open and globals.music_pos >= block.note.time - self.window:
+                    self.open_by_key[block.key] = block
+                    block.open = True
+
+        self.in_flight = new_in_flight
+
+    def key_down(self, key):
+        try:
+            hit_block = self.open_by_key[key]
+        except KeyError:
+            return
+
+        # Only permit this if it's within the right amount of time
+        hit_time = (globals.music_pos - self.parent.music_offset) - hit_block.note.time
+        print(f"{hit_time=}")
+        if abs(hit_time) <= self.window:
+            self.parent.hit(hit_block)
+            hit_block.mark_hit()
+            hit_block.delete()
+            del self.open_by_key[key]
+
+
 class GameView(ui.RootElement):
     text_fade_duration = 1000
-    music_offset = 175
+    music_offset = 0
+    line_pos = 0.3
 
     def __init__(self):
         super(GameView, self).__init__(Point(0, 0), globals.screen)
@@ -220,34 +437,33 @@ class GameView(ui.RootElement):
         # Parse the note list
         self.notes = NoteTiming(os.path.join(globals.dirs.music, "timing.txt"))
 
+        track_width = 0.1
+        self.left_track = Track(self, 0, track_width, self.notes.get_all_notes({"horn"}))
+        self.right_track = Track(self, 1.0 - track_width, track_width, self.notes.get_all_notes({"strings"}))
+
+        self.tracks = [self.left_track, self.right_track]
+
+        # We want a line across the screen to mark the point that the keys should be hit
+        self.line = Line(self, self.get_absolute(Point(0, 0.3)), self.get_absolute(Point(1, 0.3)))
+
     def quit(self, pos):
         raise SystemExit()
 
-    def key_down(self, key):
-        print("Game key down", key)
-        if key == pygame.locals.K_ESCAPE:
-            if self.main_menu.enabled:
-                return self.quit(0)
-            self.main_menu.enable()
-            self.paused = True
-            globals.cursor.enable()
-            self.level_text.disable()
-            if self.sub_text:
-                self.sub_text.disable()
-            if self.next_level_menu:
-                self.next_level_menu.disable()
-            if self.game_over:
-                self.game_over.disable()
-        if key == pygame.locals.K_SPACE:
-            # space is as good as the left button
-            self.mouse_button_down(globals.mouse_screen, 1)
+    def miss(self, block):
+        print("Missed one!")
 
-        elif key in (pygame.locals.K_RSHIFT, pygame.locals.K_LSHIFT):
-            # shifts count as the right button
-            self.mouse_button_down(globals.mouse_screen, 3)
+    def hit(self, block):
+        print("Got one!")
+
+    def key_down(self, key):
+        if key == pygame.locals.K_ESCAPE:
+            return self.quit(0)
+
+        for track in self.tracks:
+            track.key_down(key)
 
     def key_up(self, key):
-        print("Game key up", key)
+        pass
 
     def update(self, t):
         if self.paused:
@@ -257,16 +473,22 @@ class GameView(ui.RootElement):
             pygame.mixer.music.play(-1)
             self.music_start = t
 
-        music_pos = pygame.mixer.music.get_pos() + self.music_offset  # t - self.music_start
+        music_pos = globals.music_pos = (
+            pygame.mixer.music.get_pos() + self.music_offset
+        )  # t - self.music_start
 
-        new_notes = list(self.notes.get_notes(music_pos))
-        if not new_notes:
-            return
-        output = [f"{music_pos:6} "]
-        for note in new_notes:
-            output.append(f"{note.instrument:10}({note.note})")
+        # new_notes = list(self.notes.get_notes(music_pos))
+        # if new_notes:
+        #     output = [f"{music_pos:6} "]
+        #     for note in new_notes:
+        #         output.append(f"{note.instrument:10}({note.note})")
 
-        print(" ".join(output))
+        #     print(" ".join(output))
+
+        #     # These notes go into the "can-be-pressed list"
+
+        for track in self.tracks:
+            track.update(t, music_pos)
 
     def draw(self):
         drawing.draw_no_texture(globals.ui_buffer)

@@ -27,6 +27,7 @@ def init():
     globals.screen_relative = drawing.QuadBuffer(131072, ui=True)
     globals.line_buffer = drawing.LineBuffer(131072)
     globals.sounds = sounds.Sounds()
+    globals.music_pos = 0
 
     globals.mouse_relative_text = drawing.QuadBuffer(1024, ui=True, mouse_relative=True)
 

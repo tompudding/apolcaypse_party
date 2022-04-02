@@ -35,11 +35,18 @@ class UIElementList:
         return repr(self)
 
     def __repr__(self):
-        out = ['UIElementList:']
+        out = ["UIElementList:"]
         for item in self.items:
-            out.append('%s:%s - %s(%s)' % (item.absolute.bottom_left, item.absolute.top_right,
-                                           str(item), item.text if hasattr(item, 'text') else 'N/A'))
-        return '\n'.join(out)
+            out.append(
+                "%s:%s - %s(%s)"
+                % (
+                    item.absolute.bottom_left,
+                    item.absolute.top_right,
+                    str(item),
+                    item.text if hasattr(item, "text") else "N/A",
+                )
+            )
+        return "\n".join(out)
 
     def get(self, pos):
         """Return the object at a given absolute position, or None if None exist"""
@@ -60,8 +67,8 @@ class AbsoluteBounds(object):
 
     def __init__(self):
         self.bottom_left = None
-        self.top_right   = None
-        self.size        = None
+        self.top_right = None
+        self.size = None
 
     @property
     def bottom_right(self):
@@ -83,25 +90,25 @@ class UIElement(object):
     """
 
     def __init__(self, parent, pos, tr):
-        self.parent                 = parent
-        self.absolute               = AbsoluteBounds()
-        self.on                     = True
-        self.children               = []
+        self.parent = parent
+        self.absolute = AbsoluteBounds()
+        self.on = True
+        self.children = []
         self.parent.add_child(self)
         self.get_absolute_in_parent = parent.get_absolute
-        self.root                   = parent.root
-        self.level                  = parent.level + 1
+        self.root = parent.root
+        self.level = parent.level + 1
         self.set_bounds(pos, tr)
-        self.enabled                = False
-        self.dragging               = None
+        self.enabled = False
+        self.dragging = None
 
     def set_bounds(self, pos, tr):
         self.absolute.bottom_left = self.get_absolute_in_parent(pos)
-        self.absolute.top_right   = self.get_absolute_in_parent(tr)
-        self.absolute.size        = self.absolute.top_right - self.absolute.bottom_left
-        self.bottom_left          = pos
-        self.top_right            = tr
-        self.size                 = tr - pos
+        self.absolute.top_right = self.get_absolute_in_parent(tr)
+        self.absolute.size = self.absolute.top_right - self.absolute.bottom_left
+        self.bottom_left = pos
+        self.top_right = tr
+        self.size = tr - pos
 
     def update_position(self):
         self.set_bounds(self.bottom_left, self.top_right)
@@ -205,7 +212,7 @@ class UIElement(object):
             diff = self.parent.get_relative(pos) - self.dragging
             self.dragging = self.dragging + diff
             self.set_pos(self.bottom_left + diff)
-            print('%s at %s' % (type(self), self.bottom_left))
+            print("%s at %s" % (type(self), self.bottom_left))
             return True
 
     def selectable(self):
@@ -388,7 +395,7 @@ class UIRoot(RootElement):
         When we have updateable children, they can indicate to us that they are complete,
         which allows us to stop updating them and save time
         """
-        #self.updateable_children = {item : value for item,value in self.updateable_children.iteritems() if (not item.enabled or not item.update(t))}
+        # self.updateable_children = {item : value for item,value in self.updateable_children.iteritems() if (not item.enabled or not item.update(t))}
         new_children = {}
         for item, value in list(self.updateable_children.items()):
             complete = False
@@ -424,9 +431,9 @@ class UIRoot(RootElement):
         try:
             del self.updateable_children[item]
         except KeyError:
-            print('failed to remove', item, 'from', self.updateable_children)
+            print("failed to remove", item, "from", self.updateable_children)
         else:
-            print('removed', item)
+            print("removed", item)
 
 
 class HoverableElement(UIElement):
@@ -455,7 +462,7 @@ class HoverableElement(UIElement):
 
 
 class Box(UIElement):
-    """ A coloured box. Pretty boring! """
+    """A coloured box. Pretty boring!"""
 
     def __init__(self, parent, pos, tr, colour):
         super(Box, self).__init__(parent, pos, tr)
@@ -463,16 +470,14 @@ class Box(UIElement):
         self.colour = colour
         self.unselectable_colour = tuple(component * 0.6 for component in self.colour)
         self.quad.set_colour(self.colour)
-        self.quad.set_vertices(self.absolute.bottom_left,
-                               self.absolute.top_right,
-                               drawing.constants.DrawLevels.ui)
+        self.quad.set_vertices(
+            self.absolute.bottom_left, self.absolute.top_right, drawing.constants.DrawLevels.ui
+        )
         self.enable()
 
     def update_position(self):
         super(Box, self).update_position()
-        self.quad.set_vertices(self.absolute.bottom_left,
-                               self.absolute.top_right,
-                               drawing.constants.ui_level)
+        self.quad.set_vertices(self.absolute.bottom_left, self.absolute.top_right, drawing.constants.ui_level)
 
     def delete(self):
         super(Box, self).delete()
@@ -502,18 +507,26 @@ class HoverableBox(Box, HoverableElement):
 
 
 class TextBox(UIElement):
-    """ A Screen-relative text box wraps text to a given size """
+    """A Screen-relative text box wraps text to a given size"""
 
-    def __init__(self, parent, bl, tr, text, scale, colour=None,
-                 textType=drawing.texture.TextTypes.SCREEN_RELATIVE,
-                 alignment=drawing.texture.TextAlignments.LEFT):
+    def __init__(
+        self,
+        parent,
+        bl,
+        tr,
+        text,
+        scale,
+        colour=None,
+        textType=drawing.texture.TextTypes.SCREEN_RELATIVE,
+        alignment=drawing.texture.TextAlignments.LEFT,
+    ):
         if tr is None:
             # If we're given no tr; just set it to one row of text, as wide as it can get without overflowing
             # the parent
             self.shrink_to_fit = True
-            text_size          = (globals.text_manager.get_size(text, scale).to_float() / parent.absolute.size)
-            margin             = Point(text_size.y * 0.06, text_size.y * 0.15)
-            tr                 = bl + text_size + margin * 2  # Add a little breathing room by using 2.1 instead of 2
+            text_size = globals.text_manager.get_size(text, scale).to_float() / parent.absolute.size
+            margin = Point(text_size.y * 0.06, text_size.y * 0.15)
+            tr = bl + text_size + margin * 2  # Add a little breathing room by using 2.1 instead of 2
             # We'd like to store the margin relative to us, rather than our parent
             self.margin = margin / (tr - bl)
         else:
@@ -521,7 +534,7 @@ class TextBox(UIElement):
         super(TextBox, self).__init__(parent, bl, tr)
         if not self.shrink_to_fit:
             # In this case our margin is a fixed part of the box
-            self.margin      = Point(0.05, 0.05)
+            self.margin = Point(0.05, 0.05)
         self.text = text
         self.scale = scale
         self.colour = colour
@@ -529,8 +542,8 @@ class TextBox(UIElement):
         self.alignment = alignment
         self.text_manager = globals.text_manager
         self.reallocate_resources()
-        #self.quads       = [self.text_manager.letter(char,self.text_type) for char in self.text]
-        self.viewpos     = 0
+        # self.quads       = [self.text_manager.letter(char,self.text_type) for char in self.text]
+        self.viewpos = 0
         # that sets the texture coords for us
         self.position(self.bottom_left, self.scale, self.colour)
         self.enable()
@@ -543,12 +556,19 @@ class TextBox(UIElement):
         self.absolute.bottom_left = self.get_absolute_in_parent(pos)
         self.scale = scale
         self.lowest_y = 0
-        row_height = (float(self.text_manager.font_height * self.scale *
-                            drawing.texture.global_scale) / self.absolute.size.y)
+        row_height = (
+            float(self.text_manager.font_height * self.scale * drawing.texture.global_scale)
+            / self.absolute.size.y
+        )
         # Do this without any kerning or padding for now, and see what it looks like
         cursor = Point(self.margin.x, -self.viewpos + 1 - row_height - self.margin.y)
-        letter_sizes = [Point(float(quad.width * self.scale * drawing.texture.global_scale) / self.absolute.size.x,
-                              float(quad.height * self.scale * drawing.texture.global_scale) / self.absolute.size.y) for quad in self.quads]
+        letter_sizes = [
+            Point(
+                float(quad.width * self.scale * drawing.texture.global_scale) / self.absolute.size.x,
+                float(quad.height * self.scale * drawing.texture.global_scale) / self.absolute.size.y,
+            )
+            for quad in self.quads
+        ]
         # for (i,(quad,letter_size)) in enumerate(zip(self.quads,letter_sizes)):
         i = 0
         while i < len(self.quads):
@@ -557,17 +577,17 @@ class TextBox(UIElement):
                 # This would take us over a line. If we're in the middle of a word, we need to go back to the start of the
                 # word and start the new line there
                 restart = False
-                if quad.letter in ' \t':
+                if quad.letter in " \t":
                     # It's whitespace, so ok to start a new line, but do it after the whitespace
                     try:
-                        while self.quads[i].letter in ' \t':
+                        while self.quads[i].letter in " \t":
                             i += 1
                     except IndexError:
                         break
                     restart = True
                 else:
                     # look for the start of the word
-                    while i >= 0 and self.quads[i].letter not in ' \t':
+                    while i >= 0 and self.quads[i].letter not in " \t":
                         i -= 1
                     if i <= 0:
                         # This single word is too big for the line. Shit, er, lets just bail
@@ -602,9 +622,9 @@ class TextBox(UIElement):
                 break
             absolute_bl = self.get_absolute(target_bl)
             absolute_tr = self.get_absolute(target_tr)
-            self.set_letter_vertices(i, absolute_bl,
-                                     absolute_tr,
-                                     drawing.texture.TextTypes.LEVELS[self.text_type])
+            self.set_letter_vertices(
+                i, absolute_bl, absolute_tr, drawing.texture.TextTypes.LEVELS[self.text_type]
+            )
             if colour:
                 quad.set_colour(colour)
             cursor.x += letter_size.x
@@ -646,8 +666,7 @@ class TextBox(UIElement):
             self.enable()
         self.text = text
         if self.shrink_to_fit:
-            text_size = (globals.text_manager.get_size(
-                text, self.scale).to_float() / self.parent.absolute.size)
+            text_size = globals.text_manager.get_size(text, self.scale).to_float() / self.parent.absolute.size
             margin = Point(text_size.y * 0.06, text_size.y * 0.15)
             tr = self.pos + text_size + margin * 2
             # We'd like to store the margin relative to us, rather than our parent
@@ -688,20 +707,21 @@ class FaderTextBox(TextBox):
         return id(self)
 
     def set_letter_vertices(self, index, bl, tr, textType):
-        self.quads[index].set_vertices(bl - self.absolute.bottom_left, tr -
-                                       self.absolute.bottom_left, textType)
+        self.quads[index].set_vertices(
+            bl - self.absolute.bottom_left, tr - self.absolute.bottom_left, textType
+        )
 
     def SetFade(self, start_time, end_time, end_size, end_colour):
         self.start_time = start_time
-        self.end_time   = end_time
-        self.duration   = end_time - start_time
+        self.end_time = end_time
+        self.duration = end_time - start_time
         self.start_size = 1
-        self.end_size   = end_size
+        self.end_size = end_size
         self.size_difference = self.end_size - self.start_size
         self.end_colour = end_colour
         self.draw_scale = 1
-        #self.bl = (self.absolute.bottom_left - self.absolute.size*1.5).to_int()
-        #self.tr = (self.absolute.top_right + self.absolute.size*1.5).to_int()
+        # self.bl = (self.absolute.bottom_left - self.absolute.size*1.5).to_int()
+        # self.tr = (self.absolute.top_right + self.absolute.size*1.5).to_int()
         self.colour_delay = 0.4
         # print bl,tr
         self.enable()
@@ -839,14 +859,14 @@ class ScrollTextBox(TextBox):
 
 class TextBoxButton(TextBox):
     def __init__(self, parent, text, pos, tr=None, size=0.5, callback=None, line_width=2, colour=None):
-        self.callback    = callback
-        self.line_width  = line_width
-        self.hovered     = False
-        self.selected    = False
-        self.depressed   = False
-        self.enabled     = False
-        self.colour      = colour
-        self.border_margin = Point(5,5)
+        self.callback = callback
+        self.line_width = line_width
+        self.hovered = False
+        self.selected = False
+        self.depressed = False
+        self.enabled = False
+        self.colour = colour
+        self.border_margin = Point(5, 5)
         super(TextBoxButton, self).__init__(parent, pos, tr, text, size, colour=colour)
         self.border.disable()
         self.registered = False
@@ -862,7 +882,9 @@ class TextBoxButton(TextBox):
 
     def set_vertices(self):
         self.border.set_colour(drawing.constants.colours.red)
-        self.border.set_vertices(self.absolute.bottom_left - self.border_margin, self.absolute.top_right + self.border_margin)
+        self.border.set_vertices(
+            self.absolute.bottom_left - self.border_margin, self.absolute.top_right + self.border_margin
+        )
         if not self.enabled:
             self.border.disable()
 
@@ -948,25 +970,25 @@ class TextBoxButton(TextBox):
 class Slider(UIElement):
     def __init__(self, parent, bl, tr, points, callback):
         super(Slider, self).__init__(parent, bl, tr)
-        self.points   = sorted(points, key=lambda x: x[0])
+        self.points = sorted(points, key=lambda x: x[0])
         self.callback = callback
-        self.lines    = []
-        self.uilevel  = drawing.constants.DrawLevels.ui + 1
-        self.enabled  = False
+        self.lines = []
+        self.uilevel = drawing.constants.DrawLevels.ui + 1
+        self.enabled = False
         self.clickable_area = UIElement(self, Point(0.05, 0), Point(0.95, 1))
-        line          = drawing.Quad(globals.ui_buffer)
-        line_bl       = self.clickable_area.absolute.bottom_left + \
-                        self.clickable_area.absolute.size * Point(0, 0.3)
-        line_tr       = line_bl + self.clickable_area.absolute.size * Point(1, 0) + Point(0, 2)
+        line = drawing.Quad(globals.ui_buffer)
+        line_bl = self.clickable_area.absolute.bottom_left + self.clickable_area.absolute.size * Point(0, 0.3)
+        line_tr = line_bl + self.clickable_area.absolute.size * Point(1, 0) + Point(0, 2)
         line.set_vertices(line_bl, line_tr, self.uilevel)
         line.disable()
 
-        low  = self.points[0][0]
+        low = self.points[0][0]
         high = self.points[-1][0]
-        self.offsets = [float(value - low) / (high - low) if low !=
-                        high else 0 for value, index in self.points]
+        self.offsets = [
+            float(value - low) / (high - low) if low != high else 0 for value, index in self.points
+        ]
         self.lines.append(line)
-        self.index    = 0
+        self.index = 0
         self.pointer_quad = drawing.Quad(globals.ui_buffer)
         self.pointer_colour = (1, 0, 0, 1)
         self.lines.append(self.pointer_quad)
@@ -976,9 +998,11 @@ class Slider(UIElement):
         self.dragging = False
         # now do the blips
         for offset in self.offsets:
-            line    = drawing.Quad(globals.ui_buffer)
-            line_bl = self.clickable_area.absolute.bottom_left + \
-                      Point(offset, 0.3) * self.clickable_area.absolute.size
+            line = drawing.Quad(globals.ui_buffer)
+            line_bl = (
+                self.clickable_area.absolute.bottom_left
+                + Point(offset, 0.3) * self.clickable_area.absolute.size
+            )
             line_tr = line_bl + self.clickable_area.absolute.size * Point(0, 0.2) + Point(2, 0)
             line.set_vertices(line_bl, line_tr, self.uilevel)
             line.disable()
@@ -990,8 +1014,9 @@ class Slider(UIElement):
         pointer_bl = Point(offset, 0.3) - (Point(2, 10) / self.clickable_area.absolute.size)
         pointer_tr = pointer_bl + (Point(7, 14) / self.clickable_area.absolute.size)
         self.pointer_ui.set_bounds(pointer_bl, pointer_tr)
-        self.pointer_quad.set_vertices(self.pointer_ui.absolute.bottom_left,
-                                       self.pointer_ui.absolute.top_right, self.uilevel + 0.1)
+        self.pointer_quad.set_vertices(
+            self.pointer_ui.absolute.bottom_left, self.pointer_ui.absolute.top_right, self.uilevel + 0.1
+        )
         self.pointer_quad.set_colour(self.pointer_colour)
 
     def enable(self):
@@ -1030,8 +1055,9 @@ class Slider(UIElement):
         pointer_tr = pointer_bl + (Point(7, 14) / self.clickable_area.absolute.size)
         # This is a bit of a hack to avoid having to do a calculation
         temp_ui = UIElement(self.clickable_area, pointer_bl, pointer_tr)
-        self.pointer_quad.set_vertices(temp_ui.absolute.bottom_left,
-                                      temp_ui.absolute.top_right, self.uilevel + 0.1)
+        self.pointer_quad.set_vertices(
+            temp_ui.absolute.bottom_left, temp_ui.absolute.top_right, self.uilevel + 0.1
+        )
         self.clickable_area.remove_child(temp_ui)
         # If there are any eligible choices between the currently selected choice and the mouse cursor, choose
         # the one closest to the cursor
@@ -1099,8 +1125,9 @@ class SmoothSlider(Slider):
         pointer_tr = pointer_bl + (Point(7, 14) / self.clickable_area.absolute.size)
         # This is a bit of a hack to avoid having to do a calculation
         temp_ui = UIElement(self.clickable_area, pointer_bl, pointer_tr)
-        self.pointer_quad.set_vertices(temp_ui.absolute.bottom_left,
-                                      temp_ui.absolute.top_right, self.uilevel + 0.1)
+        self.pointer_quad.set_vertices(
+            temp_ui.absolute.bottom_left, temp_ui.absolute.top_right, self.uilevel + 0.1
+        )
         self.clickable_area.remove_child(temp_ui)
         # If there are any eligible choices between the currently selected choice and the mouse cursor, choose
         # the one closest to the cursor
@@ -1113,8 +1140,9 @@ class SmoothSlider(Slider):
         pointer_bl = Point(offset, 0.3) - (Point(2, 10) / self.clickable_area.absolute.size)
         pointer_tr = pointer_bl + (Point(7, 14) / self.clickable_area.absolute.size)
         self.pointer_ui.set_bounds(pointer_bl, pointer_tr)
-        self.pointer_quad.set_vertices(self.pointer_ui.absolute.bottom_left,
-                                       self.pointer_ui.absolute.top_right, self.uilevel + 0.1)
+        self.pointer_quad.set_vertices(
+            self.pointer_ui.absolute.bottom_left, self.pointer_ui.absolute.top_right, self.uilevel + 0.1
+        )
         self.pointer_quad.set_colour(self.pointer_colour)
 
 
@@ -1133,14 +1161,10 @@ class ListBox(UIElement):
         self.children = []
         self.items = items
         height = 0.8
-        maxx   = 0
+        maxx = 0
 
         for name, value in self.items:
-            t = TextBox(parent=self,
-                        bl=Point(0.05, height),
-                        tr=None,
-                        text=name,
-                        scale=self.text_size)
+            t = TextBox(parent=self, bl=Point(0.05, height), tr=None, text=name, scale=self.text_size)
             height -= t.size.y
             if t.top_right.x > maxx:
                 maxx = t.top_right.x
@@ -1155,11 +1179,7 @@ class ListBox(UIElement):
             else:
                 bl = Point(maxx + 0.05, height)
                 tr = None
-            t = TextBox(parent=self,
-                        bl=bl,
-                        tr=tr,
-                        text='%s' % value,
-                        scale=self.text_size)
+            t = TextBox(parent=self, bl=bl, tr=tr, text="%s" % value, scale=self.text_size)
             if not self.enabled:
                 t.disable()
             last_height = height
@@ -1198,7 +1218,7 @@ class TabbedEnvironment(UIElement):
         super(TabbedEnvironment, self).__init__(parent, bl, tr)
         self.tab_area = TabbedArea(self, Point(0, 0), Point(1, 0.9))
         self.buttons = []
-        self.pages   = []
+        self.pages = []
         self.current_page = None
 
     def add_tab_page(self, page):
@@ -1207,12 +1227,14 @@ class TabbedEnvironment(UIElement):
             xpos = 0
         else:
             xpos = self.buttons[-1].top_right.x
-        new_button = TextBoxButton(parent=self,
-                                   text=page.name,
-                                   pos=Point(xpos, 0.9),
-                                   tr=None,
-                                   size=0.2,
-                                   callback=utils.extra_args(self.on_click, len(self.buttons)))
+        new_button = TextBoxButton(
+            parent=self,
+            text=page.name,
+            pos=Point(xpos, 0.9),
+            tr=None,
+            size=0.2,
+            callback=utils.extra_args(self.on_click, len(self.buttons)),
+        )
 
         self.buttons.append(new_button)
         self.pages.append(page)
@@ -1237,14 +1259,17 @@ class TabbedEnvironment(UIElement):
             if page is not self.current_page:
                 page.disable()
 
-#This file is getting a bit silly; it really needs splitting up
+
+# This file is getting a bit silly; it really needs splitting up
+
 
 class ClickInfo(object):
     def __init__(self, pos, t):
         self.pos = pos
         self.time = t
 
-#The idea for this is to have 2 images, one shown normally and one when pressed
+
+# The idea for this is to have 2 images, one shown normally and one when pressed
 class ImageButtonBase(HoverableBox):
     def __init__(self, parent, pos, tr, normal_tc, pressed_tc, callback, level=None):
         super(Box, self).__init__(parent, pos, tr)
@@ -1253,9 +1278,7 @@ class ImageButtonBase(HoverableBox):
         self.callback = callback
         self.normal_tc = normal_tc
         self.pressed_tc = pressed_tc
-        self.quad.set_vertices(self.absolute.bottom_left,
-                               self.absolute.top_right,
-                               self.level)
+        self.quad.set_vertices(self.absolute.bottom_left, self.absolute.top_right, self.level)
         self.reset()
         self.enable()
         self.pressable = True
@@ -1289,14 +1312,15 @@ class ImageButtonBase(HoverableBox):
             tc = self.normal_tc
         self.quad.set_texture_coordinates(tc)
 
+
 class ImageButton(ImageButtonBase):
     def on_click(self, pos, button):
         super(ImageButton, self).on_click(pos, button)
         if self.pressable:
             self.callback()
 
-class ToggleButton(ImageButtonBase):
 
+class ToggleButton(ImageButtonBase):
     def depress(self, pos):
         pass
 
@@ -1317,8 +1341,9 @@ class DraggableItem(ImageButton):
     margin_above = 5
     margin_below = 25
     margin_total = margin_above + margin_below
+
     def __init__(self, parent, pos, image_size, normal_tc, pressed_tc, callback, text, scale, level=None):
-        #We work out our full size based on the image size + some size for text
+        # We work out our full size based on the image size + some size for text
         self.rel_margin_above = self.margin_above / parent.absolute.size.y
         self.rel_margin_below = self.margin_below / parent.absolute.size.y
         self.start_press = None
@@ -1326,8 +1351,9 @@ class DraggableItem(ImageButton):
         text_size /= parent.absolute.size
         image_pos = pos + Point(0, text_size.y + self.rel_margin_below + self.rel_margin_above)
 
-        super(DraggableItem, self).__init__(parent, image_pos, image_pos + image_size,
-                                              normal_tc, pressed_tc, callback)
+        super(DraggableItem, self).__init__(
+            parent, image_pos, image_pos + image_size, normal_tc, pressed_tc, callback
+        )
 
         self.text = TextBox(parent, pos + Point(0, self.rel_margin_below), None, text, scale)
         self.root.register_updateable(self)
@@ -1343,7 +1369,7 @@ class DraggableItem(ImageButton):
             self.start_press = None
 
     def update(self, t):
-        #If they've held a long press then we can grab it
+        # If they've held a long press then we can grab it
         if self.start_press and (t - self.start_press.time) > globals.times.long_press:
             self.callback()
             self.start_press = None
@@ -1351,14 +1377,16 @@ class DraggableItem(ImageButton):
     def undepress(self, pos):
         self.start_press = None
         super(DraggableItem, self).undepress(pos)
-        #quick hack
+        # quick hack
         if self.root.hovered and self.root.hovered is not self:
             self.root.hovered.on_click(pos, 1)
 
     @staticmethod
     def get_size(image_size, text, scale):
-        return Point(image_size.x, image_size.y +
-                     globals.text_manager.get_size(text, scale).y + DraggableItem.margin_total)
+        return Point(
+            image_size.x,
+            image_size.y + globals.text_manager.get_size(text, scale).y + DraggableItem.margin_total,
+        )
 
     def delete(self):
         super(DraggableItem, self).delete()
@@ -1372,3 +1400,72 @@ class DepressButton(ImageButtonBase):
         if not self.down:
             self.callback()
         super(DepressButton, self).depress(pos)
+
+
+class Border(UIElement):
+    def __init__(self, parent, pos, tr, colour, line_width=1, buffer=None):
+        if buffer is None:
+            buffer = globals.ui_buffer
+        super(Border, self).__init__(parent, pos, tr)
+        self.border = drawing.QuadBorder(buffer, line_width=line_width)
+        self.colour = colour
+        self.border.set_colour(colour)
+        self.border.set_colour(self.colour)
+        self.border.set_vertices(self.absolute.bottom_left, self.absolute.top_right)
+        self.enable()
+
+    def update_position(self):
+        super(Border, self).UpdatePosition()
+        self.border.set_vertices(self.absolute.bottom_left, self.absolute.top_right)
+
+    def delete(self):
+        super(Border, self).delete()
+        self.border.delete()
+
+    def disable(self):
+        if self.enabled:
+            self.border.disable()
+        super(Border, self).disable()
+
+    def enable(self):
+        if not self.enabled:
+            self.border.enable()
+        super(Border, self).enable()
+
+    def set_colour(self, colour):
+        self.colour = colour
+        self.border.set_colour(self.colour)
+
+    def make_selectable(self):
+        super(Border, self).make_selectable()
+        self.border.set_colour(self.colour)
+
+    def make_unselectable(self):
+        super(Border, self).make_unselectable()
+        self.border.set_colour(self.unselectable_colour)
+
+
+class ImageBox(Box):
+    def __init__(self, parent, pos, tr, tc, buffer=None, level=None):
+        super(Box, self).__init__(parent, pos, tr)
+        if buffer is None:
+            buffer = globals.ui_texture_buffer
+
+        self.quad = drawing.Quad(buffer)
+        self.tc = tc
+        self.extra_level = 0 if level is None else level
+        self.quad.set_vertices(
+            self.absolute.bottom_left, self.absolute.top_right, self.level + self.extra_level
+        )
+        self.quad.set_texture_coordinates(self.tc)
+        self.enable()
+
+    def resize_image(self, new_size):
+        """The image currently takes up the whole box. Resize it to take up the new amounts"""
+        abs_size = new_size * self.absolute.size
+        offset = (self.absolute.size - abs_size) / 2.0
+        self.quad.set_vertices(
+            self.absolute.bottom_left + offset,
+            self.absolute.top_right - offset,
+            self.level + self.extra_level,
+        )
