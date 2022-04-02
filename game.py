@@ -22,7 +22,7 @@ class MainMenu(ui.HoverableBox):
             self,
             Point(0, 0.8),
             Point(1, 0.95),
-            "Keep the Streak Alive",
+            "To the Beat of the Mountain King",
             3,
             colour=drawing.constants.colours.white,
             alignment=drawing.texture.TextAlignments.CENTRE,
@@ -31,7 +31,7 @@ class MainMenu(ui.HoverableBox):
             self,
             Point(0, 0.0),
             Point(1, 0.05),
-            "Right button cancels a throw. Escape for main menu",
+            "Hit the keys to save your adventurer, until your inevitable defeat!",
             1.5,
             colour=drawing.constants.colours.white,
             alignment=drawing.texture.TextAlignments.CENTRE,
@@ -39,32 +39,16 @@ class MainMenu(ui.HoverableBox):
         self.border.set_colour(drawing.constants.colours.red)
         self.border.set_vertices(self.absolute.bottom_left, self.absolute.top_right)
         self.border.enable()
+        self.start_button = ui.TextBoxButton(
+            self, "Play", Point(0.35, 0.1), size=2, callback=self.parent.start
+        )
+        self.resume_button = ui.TextBoxButton(
+            self, "Resume", Point(0.55, 0.1), size=2, callback=self.parent.resume
+        )
+        self.resume_button.disable()
         self.quit_button = ui.TextBoxButton(self, "Quit", Point(0.45, 0.1), size=2, callback=self.parent.quit)
 
         pos = Point(0.2, 0.8)
-        for i, level in enumerate(parent.levels):
-            button = ui.TextBoxButton(
-                self,
-                f"{i}: {level.name}",
-                pos,
-                size=2,
-                callback=call_with(self.start_level, i),
-            )
-            self.ticks.append(
-                ui.TextBox(
-                    self,
-                    pos - Point(0.05, 0.01),
-                    tr=pos + Point(0.1, 0.04),
-                    text="\x9a",
-                    scale=3,
-                    colour=(0, 1, 0, 1),
-                )
-            )
-            if not self.parent.done[i]:
-                self.ticks[i].disable()
-
-            pos.y -= 0.1
-            self.level_buttons.append(button)
 
     def start_level(self, pos, level):
         self.disable()
@@ -446,6 +430,8 @@ class GameView(ui.RootElement):
         self.line = Line(
             self, self.get_absolute(Point(self.line_pos, 0)), self.get_absolute(Point(self.line_pos, 1))
         )
+        self.main_menu = MainMenu(self, Point(0.1, 0.15), Point(0.9, 0.85))
+        self.paused = True
 
     def quit(self, pos):
         raise SystemExit()
@@ -458,7 +444,14 @@ class GameView(ui.RootElement):
 
     def key_down(self, key):
         if key == pygame.locals.K_ESCAPE:
-            return self.quit(0)
+            if self.main_menu.enabled:
+                if self.music_start is not None:
+                    return self.resume()
+                else:
+                    return None
+            self.main_menu.enable()
+            self.paused = True
+            pygame.mixer.music.pause()
 
         for track in self.tracks:
             track.key_down(key)
@@ -466,12 +459,24 @@ class GameView(ui.RootElement):
     def key_up(self, key):
         pass
 
+    def start(self, pos):
+        self.main_menu.disable()
+        self.paused = False
+
+        self.music_start = None
+        pygame.mixer.music.stop()
+
+    def resume(self, pos):
+        self.main_menu.disable()
+        pygame.mixer.music.unpause()
+        self.paused = False
+
     def update(self, t):
         if self.paused:
             return
 
         if self.music_start is None:
-            pygame.mixer.music.play(-1)
+            pygame.mixer.music.play()
             self.music_start = t
 
         music_pos = globals.music_pos = (

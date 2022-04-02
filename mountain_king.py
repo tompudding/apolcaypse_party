@@ -53,11 +53,11 @@ def main_run():
 
     while not done:
 
-        clock.tick(60)
+        clock.tick(120)
         t = pygame.time.get_ticks()
         fps = clock.get_fps()
         if t - last > 1000:
-            # print("FPS:", fps)
+            print("FPS:", fps)
             last = t
 
         globals.t = t
@@ -137,9 +137,6 @@ def main_run():
 def main():
     """Main loop for the game"""
     init()
-
-    # globals.current_view = main_menu.MainMenu()
-    # globals.main_menu = globals.current_view
 
     globals.dragging = None
 
