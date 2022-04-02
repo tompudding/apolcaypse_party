@@ -1,63 +1,63 @@
 # Sample, end sample (0 for same), instrument, note, difficulty
 706, 0, horn, a, 0  #Honk
-4424, 0, strings, 1, 0 # 1-2-3-4
-4717.25, 0, strings, 2, 1
-5010.5, 0, strings, 3, 1
-5303.75, 0, strings, 4, 1
-5597, 0, strings, 5, 0 # 1-2-3
-5885.25, 0, strings, 3, 1
-6173.5, 0, strings, 5, 1
+4424, 0, strings, 1, 2 # 1-2-3-4
+4717.25, 0, strings, 2, 2
+5010.5, 0, strings, 3, 2
+5303.75, 0, strings, 4, 2
+5597, 0, strings, 5, 2 # 1-2-3
+5885.25, 0, strings, 3, 2
+6173.5, 0, strings, 5, 2
 #gap
-6750, 0, strings, 5, 0 # 1-2-3
-7032.75, 0, strings, 3, 1
-7315.5, 0, strings, 5, 1
+6750, 0, strings, 5, 2 # 1-2-3
+7032.75, 0, strings, 3, 2
+7315.5, 0, strings, 5, 2
 #gap
-7881, 0, strings, 5, 0 # 1-2-3
-8169.25, 0, strings, 3, 1
-8457.5, 0, strings, 5, 1
+7881, 0, strings, 5, 2 # 1-2-3
+8169.25, 0, strings, 3, 2
+8457.5, 0, strings, 5, 2
 #gap
-9034, 0, strings, 1, 0 # 1-2-3-4
-9320.5, 0, strings, 2, 1
-9607.0, 0, strings, 3, 1
-9893.5, 0, strings, 4, 1
-10180, 0, strings, 5, 0
-10454.25, 0, strings, 3, 1
-10728.5, 0, strings, 5, 1
-11002.75, 0, strings, 5, 1
-11277, 0, strings, 3, 0
-11561.75, 0, strings, 5, 1
-11846.5, 0, strings, 5, 1
-12131.25, 0, strings, 3, 1
-12416, 500, strings, 5, 0
+9034, 0, strings, 1, 2 # 1-2-3-4
+9320.5, 0, strings, 2, 2
+9607.0, 0, strings, 3, 2
+9893.5, 0, strings, 4, 2
+10180, 0, strings, 5, 2
+10454.25, 0, strings, 3, 2
+10728.5, 0, strings, 5, 2
+11002.75, 0, strings, 5, 2
+11277, 0, strings, 3, 2
+11561.75, 0, strings, 5, 2
+11846.5, 0, strings, 5, 2
+12131.25, 0, strings, 3, 2
+12416, 500, strings, 5, 2
 
 13526, 0, strings, 1, 0 # 1-2-3-4
-13799.5, 0, strings, 2, 1
+13799.5, 0, strings, 2, 2
 14073.0, 0, strings, 3, 1
-14346.5, 0, strings, 4, 1
+14346.5, 0, strings, 4, 2
 14620, 0, strings, 5, 0 # 1-2-3
-14897, 0, strings, 3, 1
+14897, 0, strings, 3, 2
 15174, 0, strings, 5, 1
 #gap
 15728, 0, strings, 5, 0 # 1-2-3
-16006.25, 0, strings, 3, 1
+16006.25, 0, strings, 3, 2
 16284.5, 0, strings, 5, 1
 #gap
 16841, 0, strings, 5, 0 # 1-2-3
-17124.25, 0, strings, 3, 1
+17124.25, 0, strings, 3, 2
 17407.5, 0, strings, 5, 1
 #gap
 17974, 0, strings, 1, 0 # 1-2-3-4
-18247.25, 0, strings, 2, 1
+18247.25, 0, strings, 2, 2
 18520.5, 0, strings, 3, 1
-18793.75, 0, strings, 4, 1
+18793.75, 0, strings, 4, 2
 19067.0, 0, strings, 5, 0
-19340.25, 0, strings, 3, 1
+19340.25, 0, strings, 3, 2
 19613.5, 0, strings, 5, 1
-19886.75, 0, strings, 5, 1
+19886.75, 0, strings, 5, 2
 20160.0, 0, strings, 3, 0
-20433.25, 0, strings, 5, 1
+20433.25, 0, strings, 5, 2
 20706.5, 0, strings, 5, 1
-20979.75, 0, strings, 3, 1
+20979.75, 0, strings, 3, 2
 21253, 500, strings, 5, 0
 
 4424, 0, horn, a, 0
@@ -77,19 +77,19 @@
 12416, 0, horn, q, 0
 12985.5, 0, horn, e, 1
 
-13526, 0, horn, a, 0
-14073.0, 0, horn, d, 1
-14620, 0, horn, a, 0
-15174, 0, horn, d, 1
-15728, 0, horn, a, 0
-16284.5, 0, horn, d, 1
-16841, 0, horn, a, 0
-17407.5, 0, horn, d, 1
-17974, 0, horn, a, 0
-18520.5, 0, horn, d, 1
-19067.0, 0, horn, a, 0
-19613.5, 0, horn, d, 1
-20160.0, 0, horn, q, 0
-20706.5, 0, horn, e, 1
-21253, 0, horn, q, 0
-21799.5, 500, horn, e, 1
+13526, 0, horn, a, 2
+14073.0, 0, horn, d, 2
+14620, 0, horn, a, 2
+15174, 0, horn, d, 2
+15728, 0, horn, a, 2
+16284.5, 0, horn, d, 2
+16841, 0, horn, a, 2
+17407.5, 0, horn, d, 2
+17974, 0, horn, a, 2
+18520.5, 0, horn, d, 2
+19067.0, 0, horn, a, 2
+19613.5, 0, horn, d, 2
+20160.0, 0, horn, q, 2
+20706.5, 0, horn, e, 2
+21253, 0, horn, q, 2
+21799.5, 500, horn, e, 2

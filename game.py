@@ -10,6 +10,42 @@ import random
 import os
 
 
+class DifficultyChooser(ui.UIElement):
+    def __init__(self, parent, bl, tr, text_options, scale, colour):
+        self.text_options = text_options
+        self.current_text = 0
+        self.scale = scale
+        self.text_colour = colour
+        self.alignment = (drawing.texture.TextAlignments.CENTRE,)
+        super().__init__(
+            parent,
+            bl,
+            tr,
+        )
+
+        # Put the current text in the middle
+        self.text = ui.TextBox(
+            self,
+            Point(0.1, 0),
+            Point(0.9, 1),
+            self.text_options[self.current_text],
+            self.scale,
+            self.text_colour,
+            alignment=self.alignment,
+        )
+
+        self.left_button = ui.TextBoxButton(self, "<", Point(0, 0.2), size=self.scale, callback=self.left)
+        self.right_button = ui.TextBoxButton(self, ">", Point(0.8, 0.2), size=self.scale, callback=self.right)
+
+    def left(self, pos):
+        self.current_text = (self.current_text + len(self.text_options) - 1) % len(self.text_options)
+        self.text.set_text(self.text_options[self.current_text])
+
+    def right(self, pos):
+        self.current_text = (self.current_text + 1) % len(self.text_options)
+        self.text.set_text(self.text_options[self.current_text])
+
+
 class MainMenu(ui.HoverableBox):
     line_width = 1
 
@@ -36,11 +72,28 @@ class MainMenu(ui.HoverableBox):
             colour=drawing.constants.colours.white,
             alignment=drawing.texture.TextAlignments.CENTRE,
         )
+        self.difficulty_text = ui.TextBox(
+            self,
+            Point(0.2, 0.515),
+            Point(0.9, 0.615),
+            "Difficulty:",
+            2,
+            colour=drawing.constants.colours.white,
+            alignment=drawing.texture.TextAlignments.LEFT,  # This should be right aligned really but apparently I didn't implement that
+        )
+        self.difficulty = DifficultyChooser(
+            self,
+            Point(0.44, 0.56),
+            Point(0.75, 0.61),
+            ["Easy", "Medium", "Hard", "Impossible"],
+            2,
+            colour=drawing.constants.colours.white,
+        )
         self.border.set_colour(drawing.constants.colours.red)
         self.border.set_vertices(self.absolute.bottom_left, self.absolute.top_right)
         self.border.enable()
         self.start_button = ui.TextBoxButton(
-            self, "Play", Point(0.35, 0.1), size=2, callback=self.parent.start
+            self, "Play", Point(0.31, 0.1), size=2, callback=self.parent.start
         )
         self.resume_button = ui.TextBoxButton(
             self, "Resume", Point(0.55, 0.1), size=2, callback=self.parent.resume
@@ -77,6 +130,9 @@ class MainMenu(ui.HoverableBox):
         super(MainMenu, self).disable()
         for tick in self.ticks:
             tick.disable()
+
+    def get_difficulty(self):
+        return self.difficulty.current_text
 
 
 class GameOver(ui.HoverableBox):
@@ -231,7 +287,6 @@ class Line(object):
 note_subs = {
     0: {"q": "a", "e": "d"},  # easy
     1: {"q": "a", "e": "d"},  # medium
-    2: {"q": "a", "e": "d"},  # hard
     # expert can do them all!
 }
 
@@ -280,7 +335,7 @@ class Block:
         margin = self.size * 0.2
         self.letter.set_vertices(self.pos + margin, tr - margin, 1)
 
-        self.done = tr.y <= 0
+        self.done = tr.x <= 0
         return self.done
 
     def mark_hit(self):
@@ -341,6 +396,10 @@ class Track:
 
         self.open_by_key = {}
 
+    def delete(self):
+        for block in self.starts:
+            block.delete()
+
     def get_blocks(self, pos):
         for i, note in enumerate(self.current_starts):
             if note.time <= pos:
@@ -362,7 +421,6 @@ class Track:
 
         for block in self.in_flight:
             done = block.update(music_pos)
-
             if done:
                 finished_blocks.append(block)
                 block.delete()
@@ -397,6 +455,39 @@ class Track:
             del self.open_by_key[key]
 
 
+class HealthBar(ui.UIElement):
+    def __init__(self, parent, bl, tr, health):
+        self.max_health = health
+        self.health = health
+        super().__init__(parent, bl, tr)
+
+        self.border = ui.Border(self, Point(0, 0), Point(0.5, 1), colour=(1, 0, 0, 1))
+        self.filled_quad = drawing.Quad(globals.ui_buffer)
+        self.title = ui.TextBox(self, Point(0.5, 0), Point(1, 1), "Health", 2, drawing.constants.colours.red)
+
+        self.set_health()
+
+    def set_health(self):
+        bl = self.border.absolute.bottom_left
+        partial = self.health / self.max_health
+        size = self.border.absolute.size * Point(partial, 1)
+        self.filled_quad.set_vertices(bl, bl + size, drawing.constants.DrawLevels.ui)
+        self.filled_quad.set_colour((1, 0, 0, 1))
+
+    def reset(self):
+        self.health = self.max_health
+        self.set_health()
+
+    def add(self, amount):
+        self.health += amount
+        if self.health > self.max_health:
+            self.health = self.max_health
+        if self.health < 0:
+            self.health = 0
+
+        self.set_health()
+
+
 class GameView(ui.RootElement):
     text_fade_duration = 1000
     music_offset = 0
@@ -408,13 +499,31 @@ class GameView(ui.RootElement):
         self.atlas = drawing.texture.TextureAtlas("atlas_0.png", "atlas.txt", extra_names=None)
         self.paused = False
         self.music_start = None
-        self.difficulty = 1
+        self.main_menu = MainMenu(self, Point(0.1, 0.15), Point(0.9, 0.85))
+        self.difficulty = self.main_menu.get_difficulty()
         pygame.mixer.music.load(
             os.path.join(globals.dirs.music, "Musopen_-_In_the_Hall_Of_The_Mountain_King.ogg")
         )
         # Parse the note list
         self.notes = NoteTiming(os.path.join(globals.dirs.music, "timing.txt"))
+        # We want a line across the screen to mark the point that the keys should be hit
+        self.line = Line(
+            self, self.get_absolute(Point(self.line_pos, 0)), self.get_absolute(Point(self.line_pos, 1))
+        )
 
+        self.health_bar = HealthBar(self, Point(0.4, 0.15), Point(0.7, 0.2), 100)
+
+        self.paused = True
+        self.tracks = []
+        self.setup_tracks()
+        self.disable()
+        self.damage = [1, 2, 4, 8]
+        self.miss_streak = 0
+
+    def setup_tracks(self):
+        for track in self.tracks:
+            track.delete()
+            self.tracks = []
         track_width = 0.1
         self.left_track = Track(self, 0, track_width, self.notes.get_all_notes({"horn"}, self.difficulty))
         self.right_track = Track(
@@ -426,21 +535,22 @@ class GameView(ui.RootElement):
 
         self.tracks = [self.left_track, self.right_track]
 
-        # We want a line across the screen to mark the point that the keys should be hit
-        self.line = Line(
-            self, self.get_absolute(Point(self.line_pos, 0)), self.get_absolute(Point(self.line_pos, 1))
-        )
-        self.main_menu = MainMenu(self, Point(0.1, 0.15), Point(0.9, 0.85))
-        self.paused = True
-
     def quit(self, pos):
         raise SystemExit()
 
     def miss(self, block):
         print("Missed one!")
+        try:
+            damage = self.damage[self.miss_streak]
+        except IndexError:
+            damage = self.damage[-1]
+
+        self.health_bar.add(-damage)
+        self.miss_streak += 1
 
     def hit(self, block):
         print("Got one!")
+        self.miss_streak = 0
 
     def key_down(self, key):
         if key == pygame.locals.K_ESCAPE:
@@ -449,7 +559,9 @@ class GameView(ui.RootElement):
                     return self.resume()
                 else:
                     return None
+            self.main_menu.start_button.set_text("Restart")
             self.main_menu.enable()
+            self.disable()
             self.paused = True
             pygame.mixer.music.pause()
 
@@ -461,15 +573,27 @@ class GameView(ui.RootElement):
 
     def start(self, pos):
         self.main_menu.disable()
+        self.enable()
         self.paused = False
 
         self.music_start = None
+        self.health_bar.reset()
+        self.miss_streak = 0
         pygame.mixer.music.stop()
+        self.difficulty = self.main_menu.get_difficulty()
+        self.setup_tracks()
 
     def resume(self, pos):
         self.main_menu.disable()
+        self.enable()
         pygame.mixer.music.unpause()
         self.paused = False
+
+    def enable(self):
+        self.health_bar.enable()
+
+    def disable(self):
+        self.health_bar.disable()
 
     def update(self, t):
         if self.paused:
