@@ -35,7 +35,7 @@ def init():
 
     pygame.init()
     screen = pygame.display.set_mode((w, h), pygame.OPENGL | pygame.DOUBLEBUF)
-    pygame.display.set_caption("Apocalypse Party")
+    pygame.display.set_caption("To the Beat of the Mountain King")
     pygame.mouse.set_visible(False)
     drawing.init(*globals.screen)
     globals.cursor = drawing.cursors.Cursor()
@@ -56,7 +56,7 @@ def main_run():
         t = pygame.time.get_ticks()
         fps = clock.get_fps()
         if t - last > 1000:
-            print("FPS:", fps)
+            # print("FPS:", fps)
             last = t
 
         globals.t = t

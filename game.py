@@ -7,6 +7,7 @@ import math
 import pygame
 import traceback
 import random
+import os
 
 
 class MainMenu(ui.HoverableBox):
@@ -132,15 +133,92 @@ class GameOver(ui.HoverableBox):
         super(GameOver, self).disable()
 
 
+class Note:
+    def __init__(self, ms, duration, instrument, note):
+        self.time = ms
+        self.instrument = instrument
+        self.duration = duration
+        self.note = note
+
+
+class NoteTiming:
+    def __init__(self, filename):
+        self.notes = []
+
+        interval = None
+        with open(filename, "r") as file:
+            for line in file:
+                line = line.strip()
+                if "#" in line:
+                    line = line[: line.index("#")].strip()
+
+                if not line:
+                    continue
+
+                if interval is None and line.startswith("+"):
+                    # Line of the form +n/m means the previous entry was the start, the next was the end, and they're m beats apart, with the first n set
+                    n, m = (int(v) for v in line[1:].split("/"))
+                    interval = [note, n, m]
+                    print(interval)
+                    continue
+                ms, duration, instrument, note = line.split(",")
+                ms, duration = (float(v) for v in (ms, duration))
+                note = Note(ms, duration, instrument, note)
+                if interval:
+                    diff = (note.time - interval[0].time) / interval[2]
+                    for i in range(1, interval[1]):
+                        new_note = Note(
+                            ms=interval[0].time + diff * i,
+                            duration=interval[0].duration,
+                            instrument=interval[0].instrument,
+                        )
+                        self.notes.append(new_note)
+                    interval = None
+
+                self.notes.append(note)
+
+        for note in self.notes:
+            print(note.time)
+        self.current_note = 0
+        self.notes.sort(key=lambda note: note.time)
+        self.current_play = self.notes[::]
+
+    def get_notes(self, pos):
+        for i, note in enumerate(self.current_play):
+            if note.time <= pos:
+                yield note
+            else:
+                self.current_play = self.current_play[i:]
+                return
+
+        self.current_play = []
+
+    @property
+    def current(self):
+        try:
+            return self.notes[self.current_note]
+        except IndexError:
+            return 9999999999
+
+    def next(self):
+        self.current_note += 1
+
+
 class GameView(ui.RootElement):
     text_fade_duration = 1000
+    music_offset = 175
 
     def __init__(self):
         super(GameView, self).__init__(Point(0, 0), globals.screen)
 
         self.atlas = drawing.texture.TextureAtlas("atlas_0.png", "atlas.txt", extra_names=None)
-
         self.paused = False
+        self.music_start = None
+        pygame.mixer.music.load(
+            os.path.join(globals.dirs.music, "Musopen_-_In_the_Hall_Of_The_Mountain_King.ogg")
+        )
+        # Parse the note list
+        self.notes = NoteTiming(os.path.join(globals.dirs.music, "timing.txt"))
 
     def quit(self, pos):
         raise SystemExit()
@@ -172,9 +250,23 @@ class GameView(ui.RootElement):
         print("Game key up", key)
 
     def update(self, t):
-
         if self.paused:
             return
+
+        if self.music_start is None:
+            pygame.mixer.music.play(-1)
+            self.music_start = t
+
+        music_pos = pygame.mixer.music.get_pos() + self.music_offset  # t - self.music_start
+
+        new_notes = list(self.notes.get_notes(music_pos))
+        if not new_notes:
+            return
+        output = [f"{music_pos:6} "]
+        for note in new_notes:
+            output.append(f"{note.instrument:10}({note.note})")
+
+        print(" ".join(output))
 
     def draw(self):
         drawing.draw_no_texture(globals.ui_buffer)
