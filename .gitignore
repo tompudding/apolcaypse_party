@@ -1,0 +1,5 @@
+*.pyc
+*~
+errorlog.log
+.ropeproject
+__pycache__
