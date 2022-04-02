@@ -134,11 +134,12 @@ class GameOver(ui.HoverableBox):
 
 
 class Note:
-    def __init__(self, ms, duration, instrument, note):
+    def __init__(self, ms, duration, instrument, note, difficulty):
         self.time = ms
         self.instrument = instrument
         self.duration = duration
         self.note = note
+        self.difficulty = difficulty
 
 
 class NoteTiming:
@@ -161,10 +162,10 @@ class NoteTiming:
                     interval = [note, n, m]
                     print(interval)
                     continue
-                ms, duration, instrument, note = line.split(",")
-                ms, duration = (float(v) for v in (ms, duration))
+                ms, duration, instrument, note, difficulty = line.split(",")
+                ms, duration, difficulty = (float(v) for v in (ms, duration, difficulty))
                 instrument, note = (v.strip() for v in (instrument, note))
-                note = Note(ms, duration, instrument, note)
+                note = Note(ms, duration, instrument, note, difficulty)
                 if interval:
                     diff = (note.time - interval[0].time) / interval[2]
                     for i in range(1, interval[1]):
@@ -194,10 +195,10 @@ class NoteTiming:
 
         self.current_play = []
 
-    def get_all_notes(self, instruments):
+    def get_all_notes(self, instruments, difficulty):
         for note in self.notes:
 
-            if note.instrument in instruments:
+            if note.instrument in instruments and note.difficulty <= difficulty:
                 yield note
 
     @property
@@ -243,27 +244,16 @@ class Line(object):
         self.line.disable()
 
 
-def letter_from_note(note):
+note_subs = {
+    0: {"q": "a", "e": "d"},
+}
 
-    letter = {
-        "horn": {"a": "a", "e": "d", "c": "q", "g": "e"},
-        "strings": {
-            "a": "1",
-            "b": "2",
-            "c": "3",
-            "d": "4",
-            "e": "5",
-            "f": "6",
-            "g": "7",
-            "h": "8",
-            "d.25": "9",
-            "b.25": "0",
-            "a.75": "-",
-            "c.75": "*",
-        },
-    }[note.instrument][note.note]
 
-    return letter
+def letter_from_note(note, difficulty):
+    try:
+        return note_subs[difficulty][note.note]
+    except KeyError:
+        return note.note
 
 
 class Block:
@@ -290,7 +280,7 @@ class Block:
                 globals.quad_buffer,
                 tc=globals.current_view.atlas.texture_coords("resource/sprites/crate.png"),
             )
-            letter = letter_from_note(self.note)
+            letter = letter_from_note(self.note, globals.current_view.difficulty)
             self.key = ord(letter)
             self.letter = globals.text_manager.letter(letter, drawing.texture.TextTypes.SCREEN_RELATIVE)
 
@@ -431,6 +421,7 @@ class GameView(ui.RootElement):
         self.atlas = drawing.texture.TextureAtlas("atlas_0.png", "atlas.txt", extra_names=None)
         self.paused = False
         self.music_start = None
+        self.difficulty = 1
         pygame.mixer.music.load(
             os.path.join(globals.dirs.music, "Musopen_-_In_the_Hall_Of_The_Mountain_King.ogg")
         )
@@ -438,8 +429,13 @@ class GameView(ui.RootElement):
         self.notes = NoteTiming(os.path.join(globals.dirs.music, "timing.txt"))
 
         track_width = 0.1
-        self.left_track = Track(self, 0, track_width, self.notes.get_all_notes({"horn"}))
-        self.right_track = Track(self, 1.0 - track_width, track_width, self.notes.get_all_notes({"strings"}))
+        self.left_track = Track(self, 0, track_width, self.notes.get_all_notes({"horn"}, self.difficulty))
+        self.right_track = Track(
+            self,
+            1.0 - track_width,
+            track_width,
+            self.notes.get_all_notes({"strings"}, self.difficulty),
+        )
 
         self.tracks = [self.left_track, self.right_track]
 
