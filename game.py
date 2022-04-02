@@ -488,6 +488,12 @@ class HealthBar(ui.UIElement):
         self.set_health()
 
 
+def format_time(t):
+    seconds = globals.music_pos // 1000
+    ms = globals.music_pos % 1000
+    return f"{seconds:4d}.{ms:03d}"
+
+
 class GameView(ui.RootElement):
     text_fade_duration = 1000
     music_offset = 0
@@ -512,6 +518,15 @@ class GameView(ui.RootElement):
         )
 
         self.health_bar = HealthBar(self, Point(0.4, 0.15), Point(0.7, 0.2), 100)
+        self.timer = ui.TextBox(
+            self,
+            Point(0.9, 0.1),
+            Point(1, 0.2),
+            format_time(0),
+            2,
+            colour=drawing.constants.colours.white,
+            alignment=drawing.texture.TextAlignments.LEFT,
+        )
 
         self.paused = True
         self.tracks = []
@@ -547,6 +562,15 @@ class GameView(ui.RootElement):
 
         self.health_bar.add(-damage)
         self.miss_streak += 1
+        if self.health_bar.health <= 0:
+            # Bring the menu back up, but remove the resume button
+            self.main_menu.start_button.set_text("Play")
+            self.main_menu.enable()
+            self.main_menu.resume_button.disable()
+            self.main_menu.info.set_text(f"You lasted {format_time(globals.music_pos)}. Try again!")
+            self.disable()
+            self.paused = True
+            pygame.mixer.music.pause()
 
     def hit(self, block):
         print("Got one!")
@@ -602,6 +626,8 @@ class GameView(ui.RootElement):
         if self.music_start is None:
             pygame.mixer.music.play()
             self.music_start = t
+
+        self.timer.set_text(format_time(globals.music_pos))
 
         music_pos = globals.music_pos = (
             pygame.mixer.music.get_pos() + self.music_offset
