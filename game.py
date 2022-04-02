@@ -245,7 +245,10 @@ class Line(object):
 
 
 note_subs = {
-    0: {"q": "a", "e": "d"},
+    0: {"q": "a", "e": "d"},  # easy
+    1: {"q": "a", "e": "d"},  # medium
+    2: {"q": "a", "e": "d"},  # hard
+    # expert can do them all!
 }
 
 
@@ -286,7 +289,7 @@ class Block:
 
         elapsed = music_pos - self.time
         moved = elapsed * self.speed
-        self.pos = self.start_pos - Point(0, moved)
+        self.pos = self.start_pos - Point(moved, 0)
         tr = self.pos + self.size
 
         self.quad.set_vertices(self.pos, tr, 0)
@@ -310,17 +313,17 @@ class Block:
 
 
 class Track:
-    speed = 0.6  # heights per second. I.e 0.5 = take 2 seconds to transit the whole the tack
+    speed = 0.4  # heights per second. I.e 0.5 = take 2 seconds to transit the whole the tack
     window = 100
 
-    def __init__(self, parent, pos, width, notes):
+    def __init__(self, parent, pos, height, notes):
         self.parent = parent
         self.region = ui.Border(
-            parent, Point(pos, 0), Point(pos + width, 1), colour=(1, 1, 1, 1), line_width=1
+            parent, Point(0, pos), Point(1, pos + height), colour=(1, 1, 1, 1), line_width=1
         )
         # Absolute speed is pixels per ms
-        self.absolute_speed = (self.speed * self.region.absolute.size[1]) / 1000
-        self.absolute_line_pos = parent.get_absolute(Point(0, parent.line_pos)).y
+        self.absolute_speed = (self.speed * self.region.absolute.size[0]) / 1000
+        self.absolute_line_pos = parent.get_absolute(Point(parent.line_pos, 0)).x
 
         print(f"{self.absolute_speed=} {self.absolute_line_pos=}"),
 
@@ -328,9 +331,9 @@ class Track:
 
         self.starts = []
 
-        transit_pixels = self.region.absolute.size[1] - self.absolute_line_pos
+        transit_pixels = self.region.absolute.size[0] - self.absolute_line_pos
         transit_ms = transit_pixels / self.absolute_speed
-        block_size = self.region.absolute.size[0] * 0.5
+        block_size = self.region.absolute.size[1] * 0.6
 
         print(f"{transit_ms=}", self.notes)
 
@@ -343,8 +346,8 @@ class Track:
                     time,
                     note,
                     size=Point(block_size, block_size),
-                    pos=self.region.absolute.top_left
-                    + Point((self.region.absolute.size[0] - block_size) / 2, 0),
+                    pos=self.region.absolute.top_right
+                    - Point(0, block_size + (self.region.absolute.size[1] - block_size) / 2),
                     speed=self.absolute_speed,
                 )
             )
@@ -440,7 +443,9 @@ class GameView(ui.RootElement):
         self.tracks = [self.left_track, self.right_track]
 
         # We want a line across the screen to mark the point that the keys should be hit
-        self.line = Line(self, self.get_absolute(Point(0, 0.3)), self.get_absolute(Point(1, 0.3)))
+        self.line = Line(
+            self, self.get_absolute(Point(self.line_pos, 0)), self.get_absolute(Point(self.line_pos, 1))
+        )
 
     def quit(self, pos):
         raise SystemExit()
