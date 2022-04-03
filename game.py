@@ -50,6 +50,8 @@ class DifficultyChooser(ui.UIElement):
 
 class Sprite:
     fps = 12
+    gravity = -0.007
+    jump_velocity = 2
 
     def __init__(self, bl, tr, tc_names, atlas):
         self.bl = bl
@@ -58,10 +60,32 @@ class Sprite:
         self.quad = drawing.Quad(globals.quad_buffer, tc=self.tc_coords[0])
         self.quad.set_vertices(bl, tr, 50)
         self.per_frame = 1000 / self.fps
+        self.jumping = False
+        self.pos = 0
+        self.last_pos = self.pos
+        self.velocity = 0
 
     def update(self, music_pos):
+        if self.jumping:
+            t = music_pos - self.jumping
+            self.pos = (self.jump_velocity * t) + (self.gravity * t * t)
+            if self.pos < 0:
+                self.pos = 0
+                self.jumping = False
+            self.quad.translate(Point(0, self.last_pos - self.pos))
+            self.last_pos = self.pos
+
+            return
+
         pos = int(music_pos // self.per_frame) % len(self.tc_coords)
         self.quad.set_texture_coordinates(self.tc_coords[pos])
+
+    def jump(self):
+        # For a jump we switch to a fixed image for the duration, and arc upwards in a parabola
+        self.jumping = globals.music_pos
+        self.quad.set_texture_coordinates(self.tc_coords[0])
+        self.velocity = 10
+        self.last_pos = 0
 
 
 class MainMenu(ui.HoverableBox):
@@ -379,7 +403,7 @@ class Block:
 
 
 class Track:
-    speed = 0.4  # widths per second. I.e 0.5 = take 2 seconds to transit the whole the tack
+    speed = 0.5  # widths per second. I.e 0.5 = take 2 seconds to transit the whole the tack
     window_before = 150
     window_after = 250
 
@@ -645,6 +669,8 @@ class GameView(ui.RootElement):
 
     def hit(self, block):
         print("Got one!")
+        if block and block.key == ord("a"):
+            self.player.jump()
         self.miss_streak = 0
 
     def key_down(self, key):
