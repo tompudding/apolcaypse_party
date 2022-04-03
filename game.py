@@ -287,13 +287,15 @@ class Line(object):
 
 
 note_subs = {
-    0: {"q": "a", "e": "d", "space": " "},  # easy
-    1: {"q": "a", "e": "d", "space": " "},  # medium
-    2: {"q": "a", "e": "d", "space": " "},  # hard
-    3: {"space": " "},  # expert
+    0: {"q": "a", "e": "d", "space": " ", "enter": chr(pygame.locals.K_RETURN)},  # easy
+    1: {"q": "a", "e": "d", "space": " ", "enter": chr(pygame.locals.K_RETURN)},  # medium
+    2: {"q": "a", "e": "d", "space": " ", "enter": chr(pygame.locals.K_RETURN)},  # hard
+    3: {"space": " ", "enter": chr(pygame.locals.K_RETURN)},  # expert
 }
 
-print_trans = {" ": "_"}
+print_trans = {
+    " ": "_",
+}
 
 
 def letter_from_note(note, difficulty):

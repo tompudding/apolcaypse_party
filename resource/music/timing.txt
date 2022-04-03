@@ -827,49 +827,154 @@
 128886, 0, horn, space, 1
 
 
-# , 0, strings, 1, 0
-# , 0, strings, 2, 2
-# , 0, strings, 3, 1
-# , 0, strings, 4, 2
-# , 0, strings, 5, 0
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 5, 0
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 5, 0
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 1, 0
-# , 0, strings, 2, 2
-# , 0, strings, 3, 1
-# , 0, strings, 4, 2
-# , 0, strings, 5, 0
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# , 0, strings, 6, 2
-# , 0, strings, 5, 0
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# , 0, strings, 6, 2
-# , 500, strings, 0, 0
+129187, 0, strings, 1, 0
+129338.0, 0, strings, 2, 2
+129489, 0, strings, 3, 1
+129652.0, 0, strings, 4, 2
+129815, 0, strings, 5, 0
+129965.5, 0, strings, 3, 2
+130116, 0, strings, 5, 1
+#gap
+130412, 0, strings, 5, 0
+130562.5, 0, strings, 3, 2
+130713, 0, strings, 5, 1
+#gap
+131015, 0, strings, 5, 0
+131172.0, 0, strings, 3, 2
+131329, 0, strings, 5, 1
+#gap
+131633, 0, strings, 1, 0
+131791.5, 0, strings, 2, 2
+131950, 0, strings, 3, 1
+132104.0, 0, strings, 4, 2
+132258, 0, strings, 5, 0
+132411.5, 0, strings, 3, 2
+132565, 0, strings, 5, 1
+132711.5, 0, strings, 6, 2
+132858, 0, strings, 5, 0
+133004.0, 0, strings, 3, 2
+133150, 0, strings, 5, 1
+133301.0, 0, strings, 6, 2
+133452, 500, strings, 0, 0
 
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, e, 3
-# , 0, horn, w, 2
-# , 0, horn, q, 3
-# , 0, horn, d, 2
-# , 0, horn, s, 3
-# , 0, horn, a, 2
-# , 500, horn, a, 3
+129187, 0, horn, a, 2
+129489, 0, horn, space, 3
+129815, 0, horn, a, 2
+130116, 0, horn, space, 3
+130412, 0, horn, a, 2
+130713, 0, horn, space, 3
+131015, 0, horn, a, 2
+131329, 0, horn, space, 3
+131633, 0, horn, a, 2
+131950, 0, horn, space, 3
+132258, 0, horn, a, 2
+132565, 0, horn, space, 3
+132858, 0, horn, a, 2
+133150, 0, horn, space, 3
+133452, 0, horn, a, 2
+133753, 0, horn, space, 3
+
+# outtro
+
+#bum
+134067, 0, horn, a, 0
+#cha
+134344, 0, horn, space, 0
+134344, 0, strings, enter, 2
+#bum
+135174, 0, horn, a, 0
+#cha
+135488, 0, horn, space, 0
+135488, 0, strings, enter, 2
+#bum
+136153, 0, horn, a, 0
+#char
+136436, 0, horn, space, 0
+136436, 0, strings, enter, 2
+
+# do-be-do-be
+
+137162, 0, strings, 2, 0
+137290, 0, strings, 3, 2
+137419, 0, strings, 4, 1
+137548, 0, strings, 5, 2
+137676, 0, strings, 6, 0
+137805, 0, strings, 3, 2
+137934, 0, strings, 6, 1
+138062, 0, strings, 8, 2
+138191, 0, strings, 7, 0
+138320, 0, strings, 6, 2
+138448, 0, strings, 7, 1
+138577, 0, strings, 3, 2
+138706, 500, strings, 2, 0
+
+#bum
+139125, 0, horn, a, 0
+#cha
+139365, 0, horn, space, 0
+139365, 0, strings, enter, 2
+#bum
+140097, 0, horn, a, 0
+#cha
+140343, 0, horn, space, 0
+140343, 0, strings, enter, 2
+
+# do-be-do-be
+141045, 0, strings, 2, 0
+141173, 0, strings, 3, 2
+141302, 0, strings, 4, 1
+141431, 0, strings, 5, 2
+141559, 0, strings, 6, 0
+141688, 0, strings, 3, 2
+141817, 0, strings, 6, 1
+141945, 0, strings, 8, 2
+142074, 0, strings, 7, 0
+142203, 0, strings, 6, 2
+142331, 0, strings, 7, 1
+142460, 0, strings, 3, 2
+142589, 500, strings, 2, 0
+
+#bum
+143007, 0, horn, a, 0
+#cha
+143247, 0, horn, space, 0
+143247, 0, strings, enter, 2
+
+#bum
+143943, 0, horn, a, 0
+#cha
+144195, 0, horn, space, 0
+144195, 0, strings, enter, 2
+
+#bum
+144878, 0, horn, a, 0
+
+#cha cha cha cha cha
+145210, 0, horn, space, 0
+145493, 0, horn, space, 0
+145703, 0, horn, space, 0
+145930, 0, horn, space, 0
+146139, 0, horn, space, 0
+146379, 0, horn, space, 0
+146632, 0, horn, space, 0
+
+# drum-roll
+147770, 0, horn, a, 0
+147890, 0, horn, s, 2
+148010, 0, horn, a, 0
+148130, 0, horn, s, 2
+148250, 0, horn, a, 0
+148370, 0, horn, s, 2
+148490, 0, horn, a, 0
+148610, 0, horn, s, 2
+148730, 0, horn, a, 0
+148850, 0, horn, s, 2
+148970, 0, horn, a, 0
+149090, 0, horn, s, 2
+149210, 0, horn, a, 0
+149330, 0, horn, s, 2
+
+
+149598, 0, horn, a, 0
+149856, 0, horn, space, 0
+149856, 0, strings, enter, 2

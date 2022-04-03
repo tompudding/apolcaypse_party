@@ -193,12 +193,17 @@ class PetsciiAtlas(TextureAtlas):
         self.texture = Texture(image_filename)
         self.subimages = {}
         image_name = os.path.basename(image_filename)
-        for ch in range(0x20, 0xA0):
+        for ch in range(0x1F, 0xA0):
             subimage_name = chr(ch)
             if subimage_name.isalpha():
                 subimage_name = chr(ch ^ 0x20)
             if subimage_name == "_":
                 ch += 48
+
+            if ch == 0x1F:
+                subimage_name = "\r"
+                ch = 0x5F
+
             # get the row,col pos in the image, with the 0,0 being in the top left
             x = ch & 0xF
             y = ((ch - 0x20) >> 4) & 0xF
