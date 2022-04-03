@@ -81,6 +81,12 @@ class Point(object):
             raise StopIteration
         return out
 
+    def unit_vector(self):
+        if self.length() != 0:
+            return self / self.length()
+        else:
+            return self
+
     def length(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
 

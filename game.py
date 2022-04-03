@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 0 * 1000
+music_start = 12 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -48,14 +48,54 @@ class DifficultyChooser(ui.UIElement):
         self.text.set_text(self.text_options[self.current_text])
 
 
+class Bolt:
+    speed = 5
+
+    def __init__(self, tc):
+        self.tc = tc
+        self.pos = None
+        self.target = None
+        self.size = Point(64, 64)
+        self.quad = drawing.Quad(globals.quad_buffer, tc=tc)
+
+    def disable(self):
+        self.quad.disable()
+
+    def enable(self):
+        self.quad.enable()
+
+    def set_pos(self, pos, target):
+        self.pos = pos
+        self.target = target
+        pos = self.pos + (self.size / 2)
+        self.quad.set_vertices(self.pos, self.pos + self.size, 10)
+        self.last = globals.music_pos
+        print(f"New bolt at {self.pos=} {target.current_pos=}")
+
+    def update(self, music_pos):
+        elapsed = music_pos - self.last
+        self.last = music_pos
+        distance = elapsed * self.speed
+        diff = self.target.get_centre() - self.pos
+        length = diff.length()
+        if length < 50:
+            return True
+        vector = diff / length
+        move = vector * self.speed
+        self.pos += move
+        self.quad.set_vertices(self.pos, self.pos + self.size, 10)
+
+
 class Sprite:
     fps = 12
     gravity = -0.007
     jump_velocity = 2
+    duck_duration = 200
 
-    def __init__(self, bl, tr, tc_names, atlas):
+    def __init__(self, parent, bl, tr, tc_names, atlas):
         self.bl = bl
         self.tr = tr
+        self.parent = parent
         self.tc_coords = [atlas.texture_coords(name) for name in tc_names]
         self.quad = drawing.Quad(globals.quad_buffer, tc=self.tc_coords[0])
         self.quad.set_vertices(bl, tr, 50)
@@ -64,8 +104,33 @@ class Sprite:
         self.pos = 0
         self.last_pos = self.pos
         self.velocity = 0
+        self.ducking = False
+        # We make 16 secret bolt sprites and set them to disabled
+        self.bolts = [
+            Bolt(atlas.texture_coords(f"resource/sprites/magic_bolt_{i%8+1}.png")) for i in range(16)
+        ]
+        for bolt in self.bolts:
+            bolt.disable()
+
+        self.active_bolts = []
 
     def update(self, music_pos):
+        new_bolts = []
+        for bolt in self.active_bolts:
+            if bolt.update(music_pos):
+                bolt.disable()
+                self.bolts.append(bolt)
+            else:
+                new_bolts.append(bolt)
+        self.active_bolts = new_bolts
+
+        if self.ducking:
+            if music_pos < self.ducking:
+                return
+            else:
+                self.ducking = False
+                self.quad.translate(Point(0, -32))
+
         if self.jumping:
             t = music_pos - self.jumping
             self.pos = (self.jump_velocity * t) + (self.gravity * t * t)
@@ -86,6 +151,23 @@ class Sprite:
         self.quad.set_texture_coordinates(self.tc_coords[0])
         self.velocity = 10
         self.last_pos = 0
+
+    def duck(self):
+        self.ducking = globals.music_pos + self.duck_duration
+        self.quad.set_texture_coordinates(self.tc_coords[2])
+        self.quad.translate(Point(0, 32))
+
+    def shoot(self):
+        # We create a new active bolt
+        if len(self.bolts) == 0:
+            print("no more")
+            return
+
+        bolt = self.bolts.pop(0)
+        bolt.set_pos(Point(*self.quad.vertex[0][:2]), self.parent.right_track)
+        bolt.target = self.parent.right_track
+        bolt.enable()
+        self.active_bolts.append(bolt)
 
 
 class MainMenu(ui.HoverableBox):
@@ -317,7 +399,7 @@ class Line(object):
 
     def update(self):
         if self.start and self.end:
-            self.line.set_vertices(self.start, self.end, 6)
+            self.line.set_vertices(self.start, self.end, 2)
 
     def enable(self):
         self.line.enable()
@@ -448,12 +530,16 @@ class Monster(Block):
             self.quad = None
 
 
+class Wall(Monster):
+    image = "resource/sprites/low_wall.png"
+
+
 class Track:
     speed = 0.5  # widths per second. I.e 0.5 = take 2 seconds to transit the whole the tack
     window_before = 150
     window_after = 250
 
-    def __init__(self, parent, pos, height, notes):
+    def __init__(self, parent, pos, height, notes, atlas):
         self.parent = parent
         self.region = ui.Border(
             parent, Point(0, pos), Point(1, pos + height), colour=(1, 1, 1, 0.7), line_width=1
@@ -575,8 +661,8 @@ class Track:
 
 class MonsterTrack(Track):
     # The monster track puts monsters in the players path that can be jumped with the 'a' key
-    def __init__(self, parent, pos, height, notes):
-        super().__init__(parent, pos, height, notes)
+    def __init__(self, parent, pos, height, notes, atlas):
+        super().__init__(parent, pos, height, notes, atlas)
         self.monster_starts = []
         monster_size = 64
         # We also want to manage the devil positions
@@ -591,6 +677,18 @@ class MonsterTrack(Track):
                         note,
                         size=Point(monster_size, monster_size),
                         pos=parent.absolute.bottom_right + Point(300, 214),
+                        speed=self.absolute_speed,
+                    )
+                )
+
+            if note.note in ["d", "e"]:
+                # For these we'll put a wall that needs to be ducked under
+                self.monster_starts.append(
+                    Wall(
+                        time,
+                        note,
+                        size=Point(64, 384),
+                        pos=parent.absolute.bottom_right + Point(300, 214 + 48),
                         speed=self.absolute_speed,
                     )
                 )
@@ -637,8 +735,37 @@ class MonsterTrack(Track):
 
 
 class KingTrack(Track):
-    # The king track will manage the position of the floating king head that can be hit with magic missiles
-    pass
+    # The king track will manage the position of the floating ghost that can be hit with magic missiles
+    image = "resource/sprites/ghost.png"
+
+    def __init__(self, parent, pos, height, notes, atlas):
+        super().__init__(parent, pos, height, notes, atlas)
+        self.size = Point(150, 240)
+        self.quad = drawing.Quad(
+            globals.quad_buffer,
+            tc=atlas.texture_coords(self.image),
+        )
+        self.bl = Point(0, 250)
+        self.tr = self.bl + self.size
+        self.quad.set_vertices(self.bl, self.tr, 10)
+
+    def update(self, t, music_pos):
+        super().update(t, music_pos)
+
+        # We want to oscillate our position
+        x = 32 * math.sin(16 + (music_pos * 1.2 / 1000))
+        y = 32 * math.sin((music_pos * 0.8 / 1000))
+
+        self.current_pos = self.bl + Point(x, y)
+
+        self.quad.set_vertices(self.current_pos, self.tr + Point(x, y), 10)
+
+    def delete(self):
+        super().delete()
+        self.quad.delete()
+
+    def get_centre(self):
+        return self.current_pos + (self.size / 2)
 
 
 class HealthBar(ui.UIElement):
@@ -647,9 +774,17 @@ class HealthBar(ui.UIElement):
         self.health = health
         super().__init__(parent, bl, tr)
 
-        self.border = ui.Border(self, Point(0, 0), Point(0.5, 1), colour=(1, 0, 0, 1))
+        self.border = ui.Border(self, Point(0, 0.5), Point(1, 1), colour=(1, 0, 0, 1))
         self.filled_quad = drawing.Quad(globals.ui_buffer)
-        self.title = ui.TextBox(self, Point(0.5, 0), Point(1, 1), "Health", 2, drawing.constants.colours.red)
+        self.title = ui.TextBox(
+            self,
+            Point(0, 0),
+            Point(1, 0.5),
+            "Health",
+            2,
+            drawing.constants.colours.red,
+            alignment=drawing.texture.TextAlignments.CENTRE,
+        )
 
         self.set_health()
 
@@ -705,7 +840,7 @@ class GameView(ui.RootElement):
             self, self.get_absolute(Point(self.line_pos, 0)), self.get_absolute(Point(self.line_pos, 1))
         )
 
-        self.health_bar = HealthBar(self, Point(0.4, 0.15), Point(0.7, 0.2), 100)
+        self.health_bar = HealthBar(self, Point(0.05, 0.02), Point(0.2, 0.08), 100)
         self.timer = ui.TextBox(
             self,
             Point(0.85, 0.1),
@@ -731,6 +866,7 @@ class GameView(ui.RootElement):
         )
 
         self.player = Sprite(
+            self,
             self.get_absolute(Point(0.45, 0.30)),
             self.get_absolute(Point(0.55, 0.40)),
             [f"resource/sprites/k{n}.png" for n in range(1, 9)],
@@ -750,13 +886,15 @@ class GameView(ui.RootElement):
             self.tracks = []
         track_width = 0.1
         self.left_track = MonsterTrack(
-            self, 0, track_width, self.notes.get_all_notes({"horn"}, self.difficulty)
+            self, 0, track_width, self.notes.get_all_notes({"horn"}, self.difficulty), self.atlas
         )
+
         self.right_track = KingTrack(
             self,
             1.0 - track_width,
             track_width,
             self.notes.get_all_notes({"strings"}, self.difficulty),
+            self.atlas,
         )
 
         self.tracks = [self.left_track, self.right_track]
@@ -785,8 +923,14 @@ class GameView(ui.RootElement):
 
     def hit(self, block):
         print("Got one!")
-        if block and block.key in [ord("a"), ord("q")]:
-            self.player.jump()
+        if block:
+            if block.key in [ord("a"), ord("q")]:
+                self.player.jump()
+            elif block.key in [ord("d"), ord("e")]:
+                self.player.duck()
+            elif block.key in range(ord("0"), ord("9")):
+                self.player.shoot()
+
         self.miss_streak = 0
 
     def key_down(self, key):
