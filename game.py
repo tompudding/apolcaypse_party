@@ -9,6 +9,8 @@ import traceback
 import random
 import os
 
+music_start = 0 * 1000
+
 
 class DifficultyChooser(ui.UIElement):
     def __init__(self, parent, bl, tr, text_options, scale, colour):
@@ -287,6 +289,7 @@ class Line(object):
 note_subs = {
     0: {"q": "a", "e": "d"},  # easy
     1: {"q": "a", "e": "d"},  # medium
+    2: {"q": "a", "e": "d"},  # hard
     # expert can do them all!
 }
 
@@ -479,6 +482,7 @@ class HealthBar(ui.UIElement):
         self.set_health()
 
     def add(self, amount):
+        return
         self.health += amount
         if self.health > self.max_health:
             self.health = self.max_health
@@ -624,13 +628,13 @@ class GameView(ui.RootElement):
             return
 
         if self.music_start is None:
-            pygame.mixer.music.play()
+            pygame.mixer.music.play(start=music_start / 1000)
             self.music_start = t
 
         self.timer.set_text(format_time(globals.music_pos))
 
         music_pos = globals.music_pos = (
-            pygame.mixer.music.get_pos() + self.music_offset
+            pygame.mixer.music.get_pos() + self.music_offset + music_start
         )  # t - self.music_start
 
         # new_notes = list(self.notes.get_notes(music_pos))

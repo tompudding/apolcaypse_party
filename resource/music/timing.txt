@@ -1,34 +1,36 @@
 # Sample, end sample (0 for same), instrument, note, difficulty
 706, 0, horn, a, 0  #Honk
-4424, 0, strings, 1, 2 # 1-2-3-4
-4717.25, 0, strings, 2, 2
-5010.5, 0, strings, 3, 2
-5303.75, 0, strings, 4, 2
-5597, 0, strings, 5, 2 # 1-2-3
-5885.25, 0, strings, 3, 2
-6173.5, 0, strings, 5, 2
+
+# First part strings
+4424, 0, strings, 1, 3 # 1-2-3-4
+4717.25, 0, strings, 2, 3
+5010.5, 0, strings, 3, 3
+5303.75, 0, strings, 4, 3
+5597, 0, strings, 5, 3 # 1-2-3
+5885.25, 0, strings, 3, 3
+6173.5, 0, strings, 5, 3
 #gap
-6750, 0, strings, 5, 2 # 1-2-3
-7032.75, 0, strings, 3, 2
-7315.5, 0, strings, 5, 2
+6750, 0, strings, 5, 3 # 1-2-3
+7032.75, 0, strings, 3, 3
+7315.5, 0, strings, 5, 3
 #gap
-7881, 0, strings, 5, 2 # 1-2-3
-8169.25, 0, strings, 3, 2
-8457.5, 0, strings, 5, 2
+7881, 0, strings, 5, 3 # 1-2-3
+8169.25, 0, strings, 3, 3
+8457.5, 0, strings, 5, 3
 #gap
-9034, 0, strings, 1, 2 # 1-2-3-4
-9320.5, 0, strings, 2, 2
-9607.0, 0, strings, 3, 2
-9893.5, 0, strings, 4, 2
-10180, 0, strings, 5, 2
-10454.25, 0, strings, 3, 2
-10728.5, 0, strings, 5, 2
-11002.75, 0, strings, 5, 2
-11277, 0, strings, 3, 2
-11561.75, 0, strings, 5, 2
-11846.5, 0, strings, 5, 2
-12131.25, 0, strings, 3, 2
-12416, 500, strings, 5, 2
+9034, 0, strings, 1, 3 # 1-2-3-4
+9320.5, 0, strings, 2, 3
+9607.0, 0, strings, 3, 3
+9893.5, 0, strings, 4, 3
+10180, 0, strings, 5, 3
+10454.25, 0, strings, 3, 3
+10728.5, 0, strings, 5, 3
+11002.75, 0, strings, 5, 3
+11277, 0, strings, 3, 3
+11561.75, 0, strings, 5, 3
+11846.5, 0, strings, 5, 3
+12131.25, 0, strings, 3, 3
+12416, 500, strings, 5, 3
 
 13526, 0, strings, 1, 0 # 1-2-3-4
 13799.5, 0, strings, 2, 2
@@ -60,6 +62,7 @@
 20979.75, 0, strings, 3, 2
 21253, 500, strings, 5, 0
 
+# Horns for the same first part
 4424, 0, horn, a, 0
 5010.5, 0, horn, d, 1
 5597, 0, horn, a, 0
@@ -78,18 +81,201 @@
 12985.5, 0, horn, e, 1
 
 13526, 0, horn, a, 2
-14073.0, 0, horn, d, 2
+14073.0, 0, horn, d, 3
 14620, 0, horn, a, 2
-15174, 0, horn, d, 2
+15174, 0, horn, d, 3
 15728, 0, horn, a, 2
-16284.5, 0, horn, d, 2
+16284.5, 0, horn, d, 3
 16841, 0, horn, a, 2
-17407.5, 0, horn, d, 2
+17407.5, 0, horn, d, 3
 17974, 0, horn, a, 2
-18520.5, 0, horn, d, 2
+18520.5, 0, horn, d, 3
 19067.0, 0, horn, a, 2
-19613.5, 0, horn, d, 2
+19613.5, 0, horn, d, 3
 20160.0, 0, horn, q, 2
-20706.5, 0, horn, e, 2
+20706.5, 0, horn, e, 3
 21253, 0, horn, q, 2
-21799.5, 500, horn, e, 2
+21799.5, 500, horn, e, 3
+
+#Next passage, slightly higher
+22362.0, 0, strings, 2, 0
+22635.5, 0, strings, 3, 2
+22909.0, 0, strings, 4, 1
+23182.5, 0, strings, 5, 2
+23456.0, 0, strings, 6, 0
+23733.0, 0, strings, 4, 2
+24010.0, 0, strings, 6, 1
+#gap
+24564.0, 0, strings, 6, 0
+24842.25, 0, strings, 4, 2
+25120.5, 0, strings, 6, 1
+#gap
+25677.0, 0, strings, 6, 0
+25960.25, 0, strings, 4, 2
+26243.5, 0, strings, 6, 1
+#gap
+26810.0, 0, strings, 2, 0
+27083.25, 0, strings, 3, 2
+27356.5, 0, strings, 4, 1
+27629.75, 0, strings, 5, 2
+27903.0, 0, strings, 6, 0
+28176.25, 0, strings, 4, 2
+28449.5, 0, strings, 6, 1
+#gap
+28996.0, 0, strings, 6, 0
+29269.25, 0, strings, 4, 2
+29542.5, 0, strings, 6, 1
+#gap
+30089.0, 500, strings, 3, 0
+
+# Horns for the same first part
+13260.0, 0, horn, a, 0
+13846.5, 0, horn, d, 1
+14433.0, 0, horn, a, 0
+15009.5, 0, horn, d, 1
+15586.0, 0, horn, a, 0
+16151.5, 0, horn, d, 1
+16717.0, 0, horn, a, 0
+17293.5, 0, horn, d, 1
+17870.0, 0, horn, a, 0
+18443.0, 0, horn, d, 1
+19016.0, 0, horn, a, 0
+19564.5, 0, horn, d, 1
+20113.0, 0, horn, q, 0
+20682.5, 0, horn, e, 1
+21252.0, 0, horn, q, 0
+21821.5, 0, horn, e, 1
+
+22362.0, 0, horn, a, 2
+22909.0, 0, horn, d, 3
+23456.0, 0, horn, a, 2
+24010.0, 0, horn, d, 3
+24564.0, 0, horn, a, 2
+25120.5, 0, horn, d, 3
+25677.0, 0, horn, a, 2
+26243.5, 0, horn, d, 3
+26810.0, 0, horn, a, 2
+27356.5, 0, horn, d, 3
+27903.0, 0, horn, a, 2
+28449.5, 0, horn, d, 3
+28996.0, 0, horn, q, 2
+29542.5, 0, horn, e, 3
+30089.0, 0, horn, q, 2
+30635.5, 500, horn, e, 3
+
+#Repeat that bit
+#Next passage, slightly higher
+31241.0, 0, strings, 2, 0
+31514.5, 0, strings, 3, 2
+31788.0, 0, strings, 4, 1
+32061.5, 0, strings, 5, 2
+32335.0, 0, strings, 6, 0
+32612.0, 0, strings, 4, 2
+32889.0, 0, strings, 6, 1
+#gap
+33443.0, 0, strings, 6, 0
+33721.25, 0, strings, 4, 2
+33999.5, 0, strings, 6, 1
+#gap
+34556.0, 0, strings, 6, 0
+34839.25, 0, strings, 4, 2
+35122.5, 0, strings, 6, 1
+#gap
+35689.0, 0, strings, 2, 0
+35962.25, 0, strings, 3, 2
+36235.5, 0, strings, 4, 1
+36508.75, 0, strings, 5, 2
+36782.0, 0, strings, 6, 0
+37055.25, 0, strings, 4, 2
+37328.5, 0, strings, 6, 1
+#gap
+37875.0, 0, strings, 6, 0
+38148.25, 0, strings, 4, 2
+38421.5, 0, strings, 6, 1
+#gap
+38968.0, 500, strings, 3, 0
+
+# Horns for the same first part
+22139.0, 0, horn, a, 0
+22725.5, 0, horn, d, 1
+23312.0, 0, horn, a, 0
+23888.5, 0, horn, d, 1
+24465.0, 0, horn, a, 0
+25030.5, 0, horn, d, 1
+25596.0, 0, horn, a, 0
+26172.5, 0, horn, d, 1
+26749.0, 0, horn, a, 0
+27322.0, 0, horn, d, 1
+27895.0, 0, horn, a, 0
+28443.5, 0, horn, d, 1
+28992.0, 0, horn, q, 0
+29561.5, 0, horn, e, 1
+30131.0, 0, horn, q, 0
+30700.5, 0, horn, e, 1
+
+31241.0, 0, horn, a, 2
+31788.0, 0, horn, d, 3
+32335.0, 0, horn, a, 2
+32889.0, 0, horn, d, 3
+33443.0, 0, horn, a, 2
+33999.5, 0, horn, d, 3
+34556.0, 0, horn, a, 2
+35122.5, 0, horn, d, 3
+35689.0, 0, horn, a, 2
+36235.5, 0, horn, d, 3
+36782.0, 0, horn, a, 2
+37328.5, 0, horn, d, 3
+37875.0, 0, horn, q, 2
+38421.5, 0, horn, e, 3
+38968.0, 0, horn, q, 2
+39514.5, 500, horn, e, 3
+
+#Now start again, but a bit faster
+# First part strings
+40273.0, 0, strings, 1, 3
+40559.212, 0, strings, 2, 3
+40845.424, 0, strings, 3, 3
+41131.636, 0, strings, 4, 3
+41417.848, 0, strings, 5, 3
+41699.18, 0, strings, 3, 3
+41980.512, 0, strings, 5, 3
+#gap
+42543.176, 0, strings, 5, 3
+42819.14, 0, strings, 3, 3
+43095.104, 0, strings, 5, 3
+#gap
+43647.032, 0, strings, 5, 3
+43928.364, 0, strings, 3, 3
+44209.696, 0, strings, 5, 3
+#gap
+44772.36, 0, strings, 1, 3
+45051.984, 0, strings, 2, 3
+45331.608, 0, strings, 3, 3
+45611.232, 0, strings, 4, 3
+45890.856, 0, strings, 5, 3
+46158.524, 0, strings, 3, 3
+46426.192, 0, strings, 5, 3
+46693.86, 0, strings, 5, 3
+46961.528, 0, strings, 3, 3
+47239.444, 0, strings, 5, 3
+47517.36, 0, strings, 5, 3
+47795.276, 0, strings, 3, 3
+48073.192, 500, strings, 5, 3
+
+# Horns for the same first part
+40273.0, 0, horn, a, 0
+40845.424, 0, horn, d, 1
+41417.848, 0, horn, a, 0
+41980.512, 0, horn, d, 1
+42543.176, 0, horn, a, 0
+43095.104, 0, horn, d, 1
+43647.032, 0, horn, a, 0
+44209.696, 0, horn, d, 1
+44772.36, 0, horn, a, 0
+45331.608, 0, horn, d, 1
+45890.856, 0, horn, a, 0
+46426.192, 0, horn, d, 1
+46961.528, 0, horn, q, 0
+47517.36, 0, horn, e, 1
+48073.192, 0, horn, q, 0
+48629.024, 0, horn, e, 1
