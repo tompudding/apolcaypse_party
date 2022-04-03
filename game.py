@@ -9,13 +9,13 @@ import traceback
 import random
 import os
 
-music_start = 0 * 1000
+music_start = 87 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
     def __init__(self, parent, bl, tr, text_options, scale, colour):
         self.text_options = text_options
-        self.current_text = 0
+        self.current_text = 3
         self.scale = scale
         self.text_colour = colour
         self.alignment = (drawing.texture.TextAlignments.CENTRE,)
@@ -373,9 +373,9 @@ class Track:
 
         self.starts = []
 
-        transit_pixels = self.region.absolute.size[0] - self.absolute_line_pos
-        transit_ms = transit_pixels / self.absolute_speed
         block_size = self.region.absolute.size[1] * 0.6
+        transit_pixels = self.region.absolute.size[0] - self.absolute_line_pos + (block_size / 2)
+        transit_ms = transit_pixels / self.absolute_speed
 
         print(f"{transit_ms=}", self.notes)
 
@@ -430,21 +430,29 @@ class Track:
                 if not block.hit:
                     self.parent.miss(block)
                 try:
-                    del self.open_by_key[block.key]
+                    a = self.open_by_key[block.key]
+                    a = [b for b in a if b is not block]
+                    if not a:
+                        del self.open_by_key[block.key]
+                    else:
+                        self.open_by_key[block.key] = a
                 except KeyError:
                     pass
             else:
                 new_in_flight.append(block)
                 # They become open window milliseconds before their target time
                 if not block.open and globals.music_pos >= block.note.time - self.window:
-                    self.open_by_key[block.key] = block
+                    try:
+                        self.open_by_key[block.key].append(block)
+                    except KeyError:
+                        self.open_by_key[block.key] = [block]
                     block.open = True
 
         self.in_flight = new_in_flight
 
     def key_down(self, key):
         try:
-            hit_block = self.open_by_key[key]
+            hit_block = self.open_by_key[key][0]
         except KeyError:
             return
 
@@ -455,7 +463,13 @@ class Track:
             self.parent.hit(hit_block)
             hit_block.mark_hit()
             hit_block.delete()
-            del self.open_by_key[key]
+            a = self.open_by_key[hit_block.key]
+            a.pop(0)
+            if not a:
+                del self.open_by_key[hit_block.key]
+            else:
+                self.open_by_key[hit_block.key] = a
+            # del self.open_by_key[key]
 
 
 class HealthBar(ui.UIElement):
@@ -565,7 +579,7 @@ class GameView(ui.RootElement):
 
         self.health_bar.add(-damage)
         self.miss_streak += 1
-        if self.health_bar.health <= 0:
+        if 0 and self.health_bar.health <= 0:
             # Bring the menu back up, but remove the resume button
             self.main_menu.start_button.set_text("Play")
             self.main_menu.enable()

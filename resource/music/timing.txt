@@ -487,3 +487,100 @@
 87948, 0, horn, t, 3
 88397, 0, horn, a, 2
 88846, 500, horn, y, 3
+
+# Final section of the second run through of the melody
+# , 0, strings, 1, 1
+# , 0, strings, 2, 2
+# , 0, strings, 3, 1
+# , 0, strings, 4, 2
+# , 0, strings, 5, 1
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# #gap
+# , 0, strings, 5, 1
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# #gap
+# , 0, strings, 5, 1
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# #gap
+# , 0, strings, 1, 1
+# , 0, strings, 2, 2
+# , 0, strings, 3, 1
+# , 0, strings, 4, 2
+# , 0, strings, 5, 1
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# , 0, strings, 5, 2
+# , 0, strings, 3, 1
+# , 0, strings, 5, 2
+# , 0, strings, 5, 1
+# , 0, strings, 3, 2
+# , 500, strings, 5, 1
+
+# Horns for the same first part
+89277, 0, horn, a, 0
+89690, 0, horn, d, 1
+90114, 0, horn, a, 0
+90526, 0, horn, d, 1
+90976, 0, horn, a, 0
+91400, 0, horn, d, 1
+91819, 0, horn, a, 0
+92237, 0, horn, d, 1
+92655, 0, horn, a, 0
+93074, 0, horn, d, 1
+93492, 0, horn, a, 0
+93911, 0, horn, d, 1
+94311, 0, horn, q, 0
+94748, 0, horn, e, 1
+95148, 0, horn, q, 0
+95548, 0, horn, e, 1
+
+
+# , 0, strings, 1, 0
+# , 0, strings, 2, 2
+# , 0, strings, 3, 1
+# , 0, strings, 4, 2
+# , 0, strings, 5, 0
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# #gap
+# , 0, strings, 5, 0
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# #gap
+# , 0, strings, 5, 0
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# #gap
+# , 0, strings, 1, 0
+# , 0, strings, 2, 2
+# , 0, strings, 3, 1
+# , 0, strings, 4, 2
+# , 0, strings, 5, 0
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# , 0, strings, 6, 2
+# , 0, strings, 5, 0
+# , 0, strings, 3, 2
+# , 0, strings, 5, 1
+# , 0, strings, 6, 2
+# , 500, strings, 0, 0
+
+# 89277, 0, horn, a, 2
+# 89690, 0, horn, d, 3
+# 90114, 0, horn, a, 2
+# 90526, 0, horn, d, 3
+# 90976, 0, horn, a, 2
+# 91400, 0, horn, d, 3
+# 91819, 0, horn, a, 2
+# 92237, 0, horn, d, 3
+# 92655, 0, horn, a, 2
+# 93074, 0, horn, e, 3
+# 93492, 0, horn, w, 2
+# 93911, 0, horn, q, 3
+# 94311, 0, horn, d, 2
+# 94748, 0, horn, s, 3
+# 95148, 0, horn, a, 2
+# 95548, 500, horn, a, 3
