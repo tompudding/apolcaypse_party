@@ -391,3 +391,99 @@
 72977, 0, horn, e, 3
 73470, 0, horn, q, 2
 73968, 500, horn, e, 3
+
+#Higher bit take 1
+74485, 0, strings, 2, 0
+74719.0, 0, strings, 3, 2
+74953, 0, strings, 4, 1
+75193.0, 0, strings, 5, 2
+75433, 0, strings, 6, 0
+75676.0, 0, strings, 4, 2
+75919, 0, strings, 6, 1
+#gap
+76405, 0, strings, 6, 0
+76648.0, 0, strings, 4, 2
+76891, 0, strings, 6, 1
+#gap
+77352, 0, strings, 6, 0
+77601.5, 0, strings, 4, 2
+77851, 0, strings, 6, 1
+#gap
+78337, 0, strings, 2, 0
+78577.0, 0, strings, 3, 2
+78817, 0, strings, 4, 1
+79044.5, 0, strings, 5, 2
+79272, 0, strings, 6, 0
+79509.0, 0, strings, 4, 2
+79746, 0, strings, 6, 1
+#gap
+80214, 0, strings, 6, 0
+80450.5, 0, strings, 4, 2
+80687, 0, strings, 6, 1
+#gap
+81137, 500, strings, 3, 0
+
+74485, 0, horn, a, 2
+74953, 0, horn, t, 3
+75433, 0, horn, a, 2
+75919, 0, horn, t, 3
+76405, 0, horn, a, 2
+76891, 0, horn, t, 3
+77352, 0, horn, a, 2
+77851, 0, horn, t, 3
+78337, 0, horn, a, 2
+78817, 0, horn, t, 3
+79272, 0, horn, a, 2
+79746, 0, horn, t, 3
+80214, 0, horn, a, 2
+80687, 0, horn, t, 3
+81137, 0, horn, a, 2
+81617, 500, horn, t, 3
+
+#higher bit take 2
+82097, 0, strings, 2, 0
+82333.5, 0, strings, 3, 2
+82570, 0, strings, 4, 1
+82804.0, 0, strings, 5, 2
+83038, 0, strings, 6, 0
+83262.5, 0, strings, 4, 2
+83487, 0, strings, 6, 1
+#gap
+83930, 0, strings, 6, 0
+84164.0, 0, strings, 4, 2
+84398, 0, strings, 6, 1
+#gap
+84847, 0, strings, 6, 0
+85071.5, 0, strings, 4, 2
+85296, 0, strings, 6, 1
+#gap
+85739, 0, strings, 2, 0
+85960.5, 0, strings, 3, 2
+86182, 0, strings, 4, 1
+86410.0, 0, strings, 5, 2
+86638, 0, strings, 6, 0
+86850.0, 0, strings, 4, 2
+87062, 0, strings, 6, 1
+#gap
+87511, 0, strings, 6, 0
+87729.5, 0, strings, 4, 2
+87948, 0, strings, 6, 1
+#gap
+88397, 500, strings, 3, 0
+
+82097, 0, horn, a, 2
+82570, 0, horn, t, 3
+83038, 0, horn, a, 2
+83487, 0, horn, t, 3
+83930, 0, horn, a, 2
+84398, 0, horn, t, 3
+84847, 0, horn, a, 2
+85296, 0, horn, t, 3
+85739, 0, horn, a, 2
+86182, 0, horn, t, 3
+86638, 0, horn, a, 2
+87062, 0, horn, t, 3
+87511, 0, horn, a, 2
+87948, 0, horn, t, 3
+88397, 0, horn, a, 2
+88846, 500, horn, y, 3
