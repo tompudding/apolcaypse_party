@@ -48,6 +48,22 @@ class DifficultyChooser(ui.UIElement):
         self.text.set_text(self.text_options[self.current_text])
 
 
+class Sprite:
+    fps = 12
+
+    def __init__(self, bl, tr, tc_names, atlas):
+        self.bl = bl
+        self.tr = tr
+        self.tc_coords = [atlas.texture_coords(name) for name in tc_names]
+        self.quad = drawing.Quad(globals.quad_buffer, tc=self.tc_coords[0])
+        self.quad.set_vertices(bl, tr, 50)
+        self.per_frame = 1000 / self.fps
+
+    def update(self, music_pos):
+        pos = int(music_pos // self.per_frame) % len(self.tc_coords)
+        self.quad.set_texture_coordinates(self.tc_coords[pos])
+
+
 class MainMenu(ui.HoverableBox):
     line_width = 1
 
@@ -576,6 +592,13 @@ class GameView(ui.RootElement):
             level=4,
         )
 
+        self.player = Sprite(
+            self.get_absolute(Point(0.45, 0.30)),
+            self.get_absolute(Point(0.55, 0.40)),
+            [f"resource/sprites/k{n}.png" for n in range(1, 9)],
+            self.atlas,
+        )
+
         self.paused = True
         self.tracks = []
         self.setup_tracks()
@@ -697,6 +720,8 @@ class GameView(ui.RootElement):
 
         for track in self.tracks:
             track.update(t, music_pos)
+
+        self.player.update(music_pos)
 
         speed = self.left_track.speed
         tc_max = self.dungeon.start_tc[2][0]
