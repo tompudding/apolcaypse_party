@@ -128,24 +128,6 @@
 #gap
 30089.0, 500, strings, 3, 0
 
-# Horns for the same first part
-13260.0, 0, horn, a, 0
-13846.5, 0, horn, d, 1
-14433.0, 0, horn, a, 0
-15009.5, 0, horn, d, 1
-15586.0, 0, horn, a, 0
-16151.5, 0, horn, d, 1
-16717.0, 0, horn, a, 0
-17293.5, 0, horn, d, 1
-17870.0, 0, horn, a, 0
-18443.0, 0, horn, d, 1
-19016.0, 0, horn, a, 0
-19564.5, 0, horn, d, 1
-20113.0, 0, horn, q, 0
-20682.5, 0, horn, e, 1
-21252.0, 0, horn, q, 0
-21821.5, 0, horn, e, 1
-
 22362.0, 0, horn, a, 2
 22909.0, 0, horn, d, 3
 23456.0, 0, horn, a, 2
@@ -196,22 +178,6 @@
 38968.0, 500, strings, 3, 0
 
 # Horns for the same first part
-22139.0, 0, horn, a, 0
-22725.5, 0, horn, d, 1
-23312.0, 0, horn, a, 0
-23888.5, 0, horn, d, 1
-24465.0, 0, horn, a, 0
-25030.5, 0, horn, d, 1
-25596.0, 0, horn, a, 0
-26172.5, 0, horn, d, 1
-26749.0, 0, horn, a, 0
-27322.0, 0, horn, d, 1
-27895.0, 0, horn, a, 0
-28443.5, 0, horn, d, 1
-28992.0, 0, horn, q, 0
-29561.5, 0, horn, e, 1
-30131.0, 0, horn, q, 0
-30700.5, 0, horn, e, 1
 
 31241.0, 0, horn, a, 2
 31788.0, 0, horn, d, 3
@@ -232,35 +198,35 @@
 
 #Now start again, but a bit faster
 # First part strings
-40273.0, 0, strings, 1, 3
-40559.212, 0, strings, 2, 3
-40845.424, 0, strings, 3, 3
-41131.636, 0, strings, 4, 3
-41417.848, 0, strings, 5, 3
-41699.18, 0, strings, 3, 3
-41980.512, 0, strings, 5, 3
+40273.0, 0, strings, 1, 1
+40559.212, 0, strings, 2, 2
+40845.424, 0, strings, 3, 1
+41131.636, 0, strings, 4, 2
+41417.848, 0, strings, 5, 1
+41699.18, 0, strings, 3, 2
+41980.512, 0, strings, 5, 1
 #gap
-42543.176, 0, strings, 5, 3
-42819.14, 0, strings, 3, 3
-43095.104, 0, strings, 5, 3
+42543.176, 0, strings, 5, 1
+42819.14, 0, strings, 3, 2
+43095.104, 0, strings, 5, 1
 #gap
-43647.032, 0, strings, 5, 3
-43928.364, 0, strings, 3, 3
-44209.696, 0, strings, 5, 3
+43647.032, 0, strings, 5, 1
+43928.364, 0, strings, 3, 2
+44209.696, 0, strings, 5, 1
 #gap
-44772.36, 0, strings, 1, 3
-45051.984, 0, strings, 2, 3
-45331.608, 0, strings, 3, 3
-45611.232, 0, strings, 4, 3
-45890.856, 0, strings, 5, 3
-46158.524, 0, strings, 3, 3
-46426.192, 0, strings, 5, 3
-46693.86, 0, strings, 5, 3
-46961.528, 0, strings, 3, 3
-47239.444, 0, strings, 5, 3
-47517.36, 0, strings, 5, 3
-47795.276, 0, strings, 3, 3
-48073.192, 500, strings, 5, 3
+44772.36, 0, strings, 1, 1
+45051.984, 0, strings, 2, 2
+45331.608, 0, strings, 3, 1
+45611.232, 0, strings, 4, 2
+45890.856, 0, strings, 5, 1
+46158.524, 0, strings, 3, 2
+46426.192, 0, strings, 5, 1
+46693.86, 0, strings, 5, 2
+46961.528, 0, strings, 3, 1
+47239.444, 0, strings, 5, 2
+47517.36, 0, strings, 5, 1
+47795.276, 0, strings, 3, 2
+48073.192, 500, strings, 5, 1
 
 # Horns for the same first part
 40273.0, 0, horn, a, 0
@@ -327,3 +293,101 @@
 56400.5, 0, horn, s, 3
 56947.0, 0, horn, a, 2
 57493.5, 500, horn, a, 3
+
+# Starting again but with some flair
+58160.0, 0, strings, 1, 3
+58420.452919999996, 0, strings, 2, 3
+58680.90584, 0, strings, 3, 3
+58941.358759999996, 0, strings, 4, 3
+59201.81168, 0, strings, 5, 3
+59457.8238, 0, strings, 3, 3
+59713.835920000005, 0, strings, 5, 3
+#gap
+60225.86016, 0, strings, 5, 3
+60476.9874, 0, strings, 3, 3
+60728.11464, 0, strings, 5, 3
+#gap
+61230.369119999996, 0, strings, 5, 3
+61486.38124, 0, strings, 3, 3
+61742.39336, 0, strings, 5, 3
+#gap
+62354.4176, 0, strings, 1, 3
+62608.875439999996, 0, strings, 2, 3
+62863.33328, 0, strings, 3, 3
+63117.79112, 0, strings, 4, 3
+63372.24896, 0, strings, 5, 3
+63615.826839999994, 0, strings, 3, 3
+63859.404720000006, 0, strings, 5, 3
+64132.9826, 0, strings, 5, 3
+64376.56048, 0, strings, 3, 3
+64629.464040000006, 0, strings, 5, 3
+64882.3676, 0, strings, 5, 3
+65135.27116, 0, strings, 3, 3
+65388.17472000001, 500, strings, 5, 3
+
+# Horns for the same first part
+58160.0, 0, horn, a, 0
+58680.90584, 0, horn, t, 1
+59201.81168, 0, horn, a, 0
+59713.835920000005, 0, horn, t, 1
+60225.86016, 0, horn, a, 0
+60728.11464, 0, horn, t, 1
+61230.369119999996, 0, horn, a, 0
+61742.39336, 0, horn, t, 1
+62354.4176, 0, horn, a, 0
+62863.33328, 0, horn, d, 1
+63372.24896, 0, horn, a, 0
+63859.404720000006, 0, horn, d, 1
+64376.56048, 0, horn, q, 0
+64882.3676, 0, horn, e, 1
+65388.17472000001, 0, horn, q, 0
+65893.98184000001, 0, horn, e, 1
+
+66492, 0, strings, 1, 0 # 1-2-3-4
+66747.5, 0, strings, 2, 2
+67003, 0, strings, 3, 1
+67236.5, 0, strings, 4, 2
+67470, 0, strings, 5, 0 # 1-2-3
+67725.5, 0, strings, 3, 2
+67981, 0, strings, 5, 1
+#gap
+68473, 0, strings, 5, 0 # 1-2-3
+68731.5, 0, strings, 3, 2
+68990, 0, strings, 5, 1
+#gap
+69489, 0, strings, 5, 0 # 1-2-3
+69741.0, 0, strings, 3, 2
+69993, 0, strings, 5, 1
+#gap
+70510, 0, strings, 1, 0 # 1-2-3-4
+70753.0, 0, strings, 2, 2
+70996, 0, strings, 3, 1
+71242.0, 0, strings, 4, 2
+71488, 0, strings, 5, 0
+71731.0, 0, strings, 3, 2
+71974, 0, strings, 5, 1
+72217.5, 0, strings, 5, 2
+72461, 0, strings, 3, 0
+72719.0, 0, strings, 5, 2
+72977, 0, strings, 5, 1
+73223.5, 0, strings, 3, 2
+73470, 500, strings, 5, 0
+
+66492, 0, horn, a, 2
+67003, 0, horn, d, 3
+#67078, 0, horn, f, 3
+#67153, 0, horn, d, 3
+67470, 0, horn, a, 2
+67981, 0, horn, d, 3
+68473, 0, horn, a, 2
+68990, 0, horn, d, 3
+69489, 0, horn, a, 2
+69993, 0, horn, d, 3
+70510, 0, horn, a, 2
+70996, 0, horn, d, 3
+71488, 0, horn, a, 2
+71974, 0, horn, d, 3
+72461, 0, horn, q, 2
+72977, 0, horn, e, 3
+73470, 0, horn, q, 2
+73968, 500, horn, e, 3
