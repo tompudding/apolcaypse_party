@@ -7,3 +7,4 @@ resource/sprites/k6.png:resource/atlas_0.png:250:482.0:50:30
 resource/sprites/k7.png:resource/atlas_0.png:300:482.0:50:30
 resource/sprites/k8.png:resource/atlas_0.png:350:482.0:50:30
 resource/sprites/crate.png:resource/atlas_0.png:0:450.0:32:32
+resource/sprites/iron_devil.png:resource/atlas_0.png:32:450.0:32:32

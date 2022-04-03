@@ -346,6 +346,8 @@ def letter_from_note(note, difficulty):
 
 
 class Block:
+    image = "resource/sprites/crate.png"
+
     def __init__(self, time, note, size, pos, speed):
         self.time = time
         self.note = note
@@ -367,7 +369,7 @@ class Block:
             # The first time we're called we can grab a qua
             self.quad = drawing.Quad(
                 globals.quad_buffer,
-                tc=globals.current_view.atlas.texture_coords("resource/sprites/crate.png"),
+                tc=globals.current_view.atlas.texture_coords(self.image),
             )
             letter = letter_from_note(self.note, globals.current_view.difficulty)
             self.key = ord(letter)
@@ -382,9 +384,9 @@ class Block:
         self.pos = self.start_pos - Point(moved, 0)
         tr = self.pos + self.size
 
-        self.quad.set_vertices(self.pos, tr, 0)
+        self.quad.set_vertices(self.pos, tr, 10)
         margin = self.size * 0.2
-        self.letter.set_vertices(self.pos + margin, tr - margin, 1)
+        self.letter.set_vertices(self.pos + margin, tr - margin, 11)
 
         self.done = tr.x <= 0
         return self.done
@@ -400,6 +402,50 @@ class Block:
         if self.letter:
             self.letter.delete()
             self.letter = None
+
+
+class Monster(Block):
+    image = "resource/sprites/iron_devil.png"
+
+    def __init__(self, time, note, size, pos, speed):
+        self.time = time
+        self.note = note
+        self.quad = None
+        self.letter = None
+        self.start_pos = pos
+        self.speed = speed
+        self.size = size
+        self.pos = self.start_pos
+        self.open = False
+        self.done = False
+        self.hit = False
+
+    def update(self, music_pos):
+        if self.done:
+            return self.done
+
+        if self.quad is None:
+            # The first time we're called we can grab a qua
+            self.quad = drawing.Quad(
+                globals.quad_buffer,
+                tc=globals.current_view.atlas.texture_coords(self.image),
+            )
+
+        elapsed = music_pos - self.time
+        moved = elapsed * self.speed
+        self.pos = self.start_pos - Point(moved, 0)
+        tr = self.pos + self.size
+
+        self.quad.set_vertices(self.pos, tr, 10)
+
+        self.done = tr.x <= 0
+        return self.done
+
+    def delete(self):
+        self.done = True
+        if self.quad:
+            self.quad.delete()
+            self.quad = None
 
 
 class Track:
@@ -424,14 +470,14 @@ class Track:
 
         block_size = self.region.absolute.size[1] * 0.6
         transit_pixels = self.region.absolute.size[0] - self.absolute_line_pos + (block_size / 2)
-        transit_ms = transit_pixels / self.absolute_speed
+        self.transit_ms = transit_pixels / self.absolute_speed
 
-        print(f"{transit_ms=}", self.notes)
+        print(f"{self.transit_ms=}", self.notes)
 
         for note in self.notes:
             # The time this wants introducing is the time that it should cross the line minus the amount of
             # time that it will take to go from the top to the line pos
-            time = note.time - transit_ms
+            time = note.time - self.transit_ms
             self.starts.append(
                 Block(
                     time,
@@ -525,6 +571,74 @@ class Track:
 
         # if we get here it means the key didn't delete any blocks. That's a paddlin'
         return False
+
+
+class MonsterTrack(Track):
+    # The monster track puts monsters in the players path that can be jumped with the 'a' key
+    def __init__(self, parent, pos, height, notes):
+        super().__init__(parent, pos, height, notes)
+        self.monster_starts = []
+        monster_size = 64
+        # We also want to manage the devil positions
+        for note in self.notes:
+            # The time this wants introducing is the time that it should cross the line minus the amount of
+            # time that it will take to go from the top to the line pos
+            time = note.time - self.transit_ms
+            if note.note in ["a", "q"]:
+                self.monster_starts.append(
+                    Monster(
+                        time,
+                        note,
+                        size=Point(monster_size, monster_size),
+                        pos=parent.absolute.bottom_right + Point(300, 214),
+                        speed=self.absolute_speed,
+                    )
+                )
+
+        self.current_monster_starts = self.monster_starts[::]
+        self.monsters_in_flight = []
+
+    # This code duplication is nasty, but I'm in a rush
+    def get_monsters(self, pos):
+        for i, note in enumerate(self.current_monster_starts):
+            if note.time <= pos:
+                yield note
+            else:
+                self.current_monster_starts = self.current_monster_starts[i:]
+                return
+
+        self.current_monster_starts = []
+
+    def update(self, t, music_pos):
+        super().update(t, music_pos)
+
+        # Do we need to start drawing any new monsters?
+        for new_monster in self.get_monsters(music_pos):
+            self.monsters_in_flight.append(new_monster)
+
+        # Update the position of any existing blocks
+        finished_monsters = []
+        new_monsters_in_flight = []
+
+        for monster in self.monsters_in_flight:
+            done = monster.update(music_pos)
+            if done:
+                finished_monsters.append(monster)
+                monster.delete()
+            else:
+                new_monsters_in_flight.append(monster)
+
+        self.monsters_in_flight = new_monsters_in_flight
+
+    def delete(self):
+        super().delete()
+        for monster in self.monster_starts:
+            monster.delete()
+
+
+class KingTrack(Track):
+    # The king track will manage the position of the floating king head that can be hit with magic missiles
+    pass
 
 
 class HealthBar(ui.UIElement):
@@ -635,8 +749,10 @@ class GameView(ui.RootElement):
             track.delete()
             self.tracks = []
         track_width = 0.1
-        self.left_track = Track(self, 0, track_width, self.notes.get_all_notes({"horn"}, self.difficulty))
-        self.right_track = Track(
+        self.left_track = MonsterTrack(
+            self, 0, track_width, self.notes.get_all_notes({"horn"}, self.difficulty)
+        )
+        self.right_track = KingTrack(
             self,
             1.0 - track_width,
             track_width,
@@ -669,7 +785,7 @@ class GameView(ui.RootElement):
 
     def hit(self, block):
         print("Got one!")
-        if block and block.key == ord("a"):
+        if block and block.key in [ord("a"), ord("q")]:
             self.player.jump()
         self.miss_streak = 0
 
