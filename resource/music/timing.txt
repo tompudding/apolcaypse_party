@@ -634,199 +634,197 @@
 107159, 0, horn, q, 1
 107497, 0, horn, space, 0
 
-# , 0, strings, 1, 0 # 1-2-3-4
-# , 0, strings, 2, 2
-# , 0, strings, 3, 1
-# , 0, strings, 4, 2
-# , 0, strings, 5, 0 # 1-2-3
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 5, 0 # 1-2-3
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 5, 0 # 1-2-3
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 1, 0 # 1-2-3-4
-# , 0, strings, 2, 2
-# , 0, strings, 3, 1
-# , 0, strings, 4, 2
-# , 0, strings, 5, 0
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# , 0, strings, 5, 2
-# , 0, strings, 3, 0
-# , 0, strings, 5, 2
-# , 0, strings, 5, 1
-# , 0, strings, 3, 2
-# , 500, strings, 5, 0
+107897, 0, strings, 1, 0 # 1-2-3-4
+108075.5, 0, strings, 2, 2
+108254, 0, strings, 3, 1
+108423.0, 0, strings, 4, 2
+108592, 0, strings, 5, 0 # 1-2-3
+108764.5, 0, strings, 3, 2
+108937, 0, strings, 5, 1
+#gap
+109349, 0, strings, 5, 0 # 1-2-3
+109512.0, 0, strings, 3, 2
+109675, 0, strings, 5, 1
+#gap
+109952, 0, strings, 5, 0 # 1-2-3
+110124.5, 0, strings, 3, 2
+110297, 0, strings, 5, 1
+#gap
+110660, 0, strings, 1, 0 # 1-2-3-4
+110835.5, 0, strings, 2, 2
+111011, 0, strings, 3, 1
+111195.5, 0, strings, 4, 2
+111380, 0, strings, 5, 0
+111543.0, 0, strings, 3, 2
+111706, 0, strings, 5, 1
+111869.0, 0, strings, 5, 2
+112032, 0, strings, 3, 0
+112216.5, 0, strings, 5, 2
+112401, 0, strings, 5, 1
+112604.0, 0, strings, 3, 2
+112807, 500, strings, 5, 0
 
 107897, 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, f, 3
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, a, 2
-# , 0, horn, d, 3
-# , 0, horn, q, 2
-# , 0, horn, e, 3
-# , 0, horn, q, 2
-# , 500, horn, e, 3
+108254, 0, horn, space, 3
+108592, 0, horn, a, 2
+108937, 0, horn, space, 3
+109349, 0, horn, a, 2
+109675, 0, horn, space, 3
+109952, 0, horn, a, 2
+110297, 0, horn, space, 3
+110660, 0, horn, a, 2
+111011, 0, horn, space, 3
+111380, 0, horn, a, 2
+111706, 0, horn, space, 3
+112032, 0, horn, q, 2
+112401, 0, horn, space, 3
+112807, 0, horn, q, 2
+113078, 500, horn, space, 3
 
 # #Higher bit take 1
-# , 0, strings, 2, 0
-# , 0, strings, 3, 2
-# , 0, strings, 4, 1
-# , 0, strings, 5, 2
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 0, strings, 2, 0
-# , 0, strings, 3, 2
-# , 0, strings, 4, 1
-# , 0, strings, 5, 2
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 500, strings, 3, 0
+113478, 0, strings, 2, 0
+113641.0, 0, strings, 3, 2
+113804, 0, strings, 4, 1
+113958.0, 0, strings, 5, 2
+114112, 0, strings, 6, 0
+114262.5, 0, strings, 4, 2
+114413, 0, strings, 6, 1
+#gap
+114776, 0, strings, 6, 0
+114936.0, 0, strings, 4, 2
+115096, 0, strings, 6, 1
+#gap
+115453, 0, strings, 6, 0
+115625.5, 0, strings, 4, 2
+115798, 0, strings, 6, 1
+#gap
+116155, 0, strings, 2, 0
+116315.0, 0, strings, 3, 2
+116475, 0, strings, 4, 1
+116628.5, 0, strings, 5, 2
+116782, 0, strings, 6, 0
+116954.5, 0, strings, 4, 2
+117127, 0, strings, 6, 1
+#gap
+117521, 0, strings, 6, 0
+117656.0, 0, strings, 4, 2
+117791, 0, strings, 6, 1
+#gap
+118142, 500, strings, 3, 0
 
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 500, horn, t, 3
+113478, 0, horn, a, 2
+113804, 0, horn, space, 3
+114112, 0, horn, a, 2
+114413, 0, horn, space, 3
+114776, 0, horn, a, 2
+115096, 0, horn, space, 3
+115453, 0, horn, a, 2
+115798, 0, horn, space, 3
+116155, 0, horn, a, 2
+116475, 0, horn, space, 3
+116782, 0, horn, a, 2
+117127, 0, horn, space, 3
+117521, 0, horn, a, 2
+117791, 0, horn, space, 3
+118142, 0, horn, a, 2
+118493, 500, horn, space, 3
 
 # #higher bit take 2
-# , 0, strings, 2, 0
-# , 0, strings, 3, 2
-# , 0, strings, 4, 1
-# , 0, strings, 5, 2
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 0, strings, 2, 0
-# , 0, strings, 3, 2
-# , 0, strings, 4, 1
-# , 0, strings, 5, 2
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 0, strings, 6, 0
-# , 0, strings, 4, 2
-# , 0, strings, 6, 1
-# #gap
-# , 500, strings, 3, 0
+118825, 0, strings, 2, 0
+118997.5, 0, strings, 3, 2
+119170, 0, strings, 4, 1
+119327.0, 0, strings, 5, 2
+119484, 0, strings, 6, 0
+119647.0, 0, strings, 4, 2
+119810, 0, strings, 6, 1
+#gap
+120117, 0, strings, 6, 0
+120318.5, 0, strings, 4, 2
+120520, 0, strings, 6, 1
+#gap
+120825, 0, strings, 6, 0
+120988.0, 0, strings, 4, 2
+121151, 0, strings, 6, 1
+#gap
+121471, 0, strings, 2, 0
+121631.0, 0, strings, 3, 2
+121791, 0, strings, 4, 1
+121957.0, 0, strings, 5, 2
+122123, 0, strings, 6, 0
+122283.0, 0, strings, 4, 2
+122443, 0, strings, 6, 1
+#gap
+122763, 0, strings, 6, 0
+122914.0, 0, strings, 4, 2
+123065, 0, strings, 6, 1
+#gap
+123391, 500, strings, 3, 0
 
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 0, horn, t, 3
-# , 0, horn, a, 2
-# , 500, horn, y, 3
+118825, 0, horn, a, 2
+119170, 0, horn, space, 3
+119484, 0, horn, a, 2
+119810, 0, horn, space, 3
+120117, 0, horn, a, 2
+120520, 0, horn, space, 3
+120825, 0, horn, a, 2
+121151, 0, horn, space, 3
+121471, 0, horn, a, 2
+121791, 0, horn, space, 3
+122123, 0, horn, a, 2
+122443, 0, horn, space, 3
+122763, 0, horn, a, 2
+123065, 0, horn, space, 3
+123391, 0, horn, a, 2
+123717, 500, horn, space, 3
 
-# # Final section of the second run through of the melody
-# , 0, strings, 1, 1
-# , 0, strings, 2, 2
-# , 0, strings, 3, 1
-# , 0, strings, 4, 2
-# , 0, strings, 5, 1
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 5, 1
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 5, 1
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# #gap
-# , 0, strings, 1, 1
-# , 0, strings, 2, 2
-# , 0, strings, 3, 1
-# , 0, strings, 4, 2
-# , 0, strings, 5, 1
-# , 0, strings, 3, 2
-# , 0, strings, 5, 1
-# , 0, strings, 5, 2
-# , 0, strings, 3, 1
-# , 0, strings, 5, 2
-# , 0, strings, 5, 1
-# , 0, strings, 3, 2
-# , 500, strings, 5, 1
+# # Final section of the third run through of the melody
+124043, 0, strings, 1, 1
+124204.0, 0, strings, 2, 2
+124365, 0, strings, 3, 1
+124526.5, 0, strings, 4, 2
+124688, 0, strings, 5, 1
+124849.5, 0, strings, 3, 2
+125011, 0, strings, 5, 1
+#gap
+125334, 0, strings, 5, 1
+125495.5, 0, strings, 3, 2
+125657, 0, strings, 5, 1
+#gap
+125980, 0, strings, 5, 1
+126141.5, 0, strings, 3, 2
+126303, 0, strings, 5, 1
+#gap
+126625, 0, strings, 1, 1
+126786.5, 0, strings, 2, 2
+126948, 0, strings, 3, 1
+127109.5, 0, strings, 4, 2
+127271, 0, strings, 5, 1
+127432.5, 0, strings, 3, 2
+127594, 0, strings, 5, 1
+127755.5, 0, strings, 5, 2
+127917, 0, strings, 3, 1
+128078.5, 0, strings, 5, 2
+128240, 0, strings, 5, 1
+128401.5, 0, strings, 3, 2
+128563, 500, strings, 5, 1
 
 # # Horns for the same first part
-# , 0, horn, a, 0
-# , 0, horn, d, 1
-# , 0, horn, a, 0
-# , 0, horn, d, 1
-# , 0, horn, a, 0
-# , 0, horn, d, 1
-# , 0, horn, a, 0
-# , 0, horn, d, 1
-# , 0, horn, a, 0
-# , 0, horn, d, 1
-# , 0, horn, a, 0
-# , 0, horn, d, 1
-# , 0, horn, q, 0
-# , 0, horn, e, 1
-# , 0, horn, q, 0
-# , 0, horn, e, 1
+124043, 0, horn, a, 0
+124365, 0, horn, space, 1
+124688, 0, horn, a, 0
+125011, 0, horn, space, 1
+125334, 0, horn, a, 0
+125657, 0, horn, space, 1
+125980, 0, horn, a, 0
+126303, 0, horn, space, 1
+126625, 0, horn, a, 0
+126948, 0, horn, space, 1
+127271, 0, horn, a, 0
+127594, 0, horn, space, 1
+127917, 0, horn, q, 0
+128240, 0, horn, space, 1
+128563, 0, horn, q, 0
+128886, 0, horn, space, 1
 
 
 # , 0, strings, 1, 0
