@@ -9,13 +9,13 @@ import traceback
 import random
 import os
 
-music_start = 12 * 1000
+music_start = 57 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
     def __init__(self, parent, bl, tr, text_options, scale, colour):
         self.text_options = text_options
-        self.current_text = 0
+        self.current_text = 3
         self.scale = scale
         self.text_colour = colour
         self.alignment = (drawing.texture.TextAlignments.CENTRE,)
@@ -51,12 +51,12 @@ class DifficultyChooser(ui.UIElement):
 class Bolt:
     speed = 5
 
-    def __init__(self, tc):
-        self.tc = tc
+    def __init__(self, atlas):
         self.pos = None
         self.target = None
         self.size = Point(64, 64)
-        self.quad = drawing.Quad(globals.quad_buffer, tc=tc)
+        self.atlas = atlas
+        self.quad = drawing.Quad(globals.quad_buffer)
 
     def disable(self):
         self.quad.disable()
@@ -70,7 +70,6 @@ class Bolt:
         pos = self.pos + (self.size / 2)
         self.quad.set_vertices(self.pos, self.pos + self.size, 10)
         self.last = globals.music_pos
-        print(f"New bolt at {self.pos=} {target.current_pos=}")
 
     def update(self, music_pos):
         elapsed = music_pos - self.last
@@ -85,6 +84,11 @@ class Bolt:
         self.pos += move
         self.quad.set_vertices(self.pos, self.pos + self.size, 10)
 
+    def set_type(self, num):
+        self.quad.set_texture_coordinates(
+            self.atlas.texture_coords(f"resource/sprites/magic_bolt_{num%8+1}.png")
+        )
+
 
 class Sprite:
     fps = 12
@@ -95,20 +99,19 @@ class Sprite:
     def __init__(self, parent, bl, tr, tc_names, atlas):
         self.bl = bl
         self.tr = tr
+        self.size = self.tr - self.bl
         self.parent = parent
         self.tc_coords = [atlas.texture_coords(name) for name in tc_names]
         self.quad = drawing.Quad(globals.quad_buffer, tc=self.tc_coords[0])
         self.quad.set_vertices(bl, tr, 50)
         self.per_frame = 1000 / self.fps
         self.jumping = False
-        self.pos = 0
-        self.last_pos = self.pos
+        self.pos = Point(0, 0)
+        self.start_pos = self.bl
         self.velocity = 0
         self.ducking = False
         # We make 16 secret bolt sprites and set them to disabled
-        self.bolts = [
-            Bolt(atlas.texture_coords(f"resource/sprites/magic_bolt_{i%8+1}.png")) for i in range(16)
-        ]
+        self.bolts = [Bolt(atlas) for i in range(16)]
         for bolt in self.bolts:
             bolt.disable()
 
@@ -133,23 +136,23 @@ class Sprite:
 
         if self.jumping:
             t = music_pos - self.jumping
-            self.pos = (self.jump_velocity * t) + (self.gravity * t * t)
-            if self.pos < 0:
-                self.pos = 0
+            self.pos = Point(0, (self.jump_velocity * t) + (self.gravity * t * t))
+            if self.pos.y < 0:
+                self.pos = Point(0, 0)
                 self.jumping = False
-            self.quad.translate(Point(0, self.last_pos - self.pos))
-            self.last_pos = self.pos
+            pos = self.start_pos + self.pos
+            self.quad.set_vertices(pos, pos + self.size, 50)
 
             return
 
         pos = int(music_pos // self.per_frame) % len(self.tc_coords)
         self.quad.set_texture_coordinates(self.tc_coords[pos])
 
-    def jump(self):
+    def jump(self, high=False):
         # For a jump we switch to a fixed image for the duration, and arc upwards in a parabola
         self.jumping = globals.music_pos
         self.quad.set_texture_coordinates(self.tc_coords[0])
-        self.velocity = 10
+        self.jump_velocity = 2.4 if high else 2
         self.last_pos = 0
 
     def duck(self):
@@ -157,15 +160,15 @@ class Sprite:
         self.quad.set_texture_coordinates(self.tc_coords[2])
         self.quad.translate(Point(0, 32))
 
-    def shoot(self):
+    def shoot(self, num):
         # We create a new active bolt
         if len(self.bolts) == 0:
-            print("no more")
             return
 
         bolt = self.bolts.pop(0)
         bolt.set_pos(Point(*self.quad.vertex[0][:2]), self.parent.right_track)
         bolt.target = self.parent.right_track
+        bolt.set_type(num)
         bolt.enable()
         self.active_bolts.append(bolt)
 
@@ -324,7 +327,6 @@ class NoteTiming:
                     # Line of the form +n/m means the previous entry was the start, the next was the end, and they're m beats apart, with the first n set
                     n, m = (int(v) for v in line[1:].split("/"))
                     interval = [note, n, m]
-                    print(interval)
                     continue
                 ms, duration, instrument, note, difficulty = line.split(",")
                 ms, duration, difficulty = (float(v) for v in (ms, duration, difficulty))
@@ -343,8 +345,6 @@ class NoteTiming:
 
                 self.notes.append(note)
 
-        for note in self.notes:
-            print(note.time)
         self.current_note = 0
         self.notes.sort(key=lambda note: note.time)
         self.current_play = self.notes[::]
@@ -534,6 +534,10 @@ class Wall(Monster):
     image = "resource/sprites/low_wall.png"
 
 
+class BigMonster(Monster):
+    image = "resource/sprites/big_monster.png"
+
+
 class Track:
     speed = 0.5  # widths per second. I.e 0.5 = take 2 seconds to transit the whole the tack
     window_before = 150
@@ -676,6 +680,16 @@ class MonsterTrack(Track):
                         time,
                         note,
                         size=Point(monster_size, monster_size),
+                        pos=parent.absolute.bottom_right + Point(300, 214),
+                        speed=self.absolute_speed,
+                    )
+                )
+            if note.note in ["t"]:
+                self.monster_starts.append(
+                    BigMonster(
+                        time,
+                        note,
+                        size=Point(121, 131),
                         pos=parent.absolute.bottom_right + Point(300, 214),
                         speed=self.absolute_speed,
                     )
@@ -926,10 +940,12 @@ class GameView(ui.RootElement):
         if block:
             if block.key in [ord("a"), ord("q")]:
                 self.player.jump()
+            elif block.key == ord("t"):
+                self.player.jump(high=True)
             elif block.key in [ord("d"), ord("e")]:
                 self.player.duck()
             elif block.key in range(ord("0"), ord("9")):
-                self.player.shoot()
+                self.player.shoot(block.key - ord("0"))
 
         self.miss_streak = 0
 
