@@ -1,1 +1,1 @@
-resource/background/catacombs_0.png:resource/wall_atlas_0.png:0:0.0:32:32
+resource/background/wall.png:resource/wall_atlas_0.png:0:0.0:256:256

@@ -563,9 +563,9 @@ class GameView(ui.RootElement):
         )
 
         aspect = globals.screen_root.absolute.size.x / globals.screen_root.absolute.size.y
-        tile = 6
+        tile = 1
         tc = [[0, 0], [0, tile], [tile * aspect, tile], [tile * aspect, 0]]
-        self.wall_atlas.transform_coords("resource/background/catacombs_0.png", tc)
+        self.wall_atlas.transform_coords("resource/background/wall.png", tc)
 
         self.dungeon = ui.ImageBox(
             self,

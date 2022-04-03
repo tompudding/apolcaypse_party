@@ -37,9 +37,9 @@ def init():
     pygame.init()
     screen = pygame.display.set_mode((w, h), pygame.OPENGL | pygame.DOUBLEBUF)
     pygame.display.set_caption("To the Beat of the Mountain King")
-    pygame.mouse.set_visible(False)
+    # pygame.mouse.set_visible(False)
     drawing.init(*globals.screen)
-    globals.cursor = drawing.cursors.Cursor()
+    # globals.cursor = drawing.cursors.Cursor()
 
     globals.text_manager = drawing.texture.TextManager()
 
@@ -70,7 +70,7 @@ def main_run():
         globals.screen_root.draw()
         globals.text_manager.draw()
         drawing.draw_no_texture(globals.ui_buffer)
-        globals.cursor.draw()
+        # globals.cursor.draw()
 
         drawing.end_frame()
 
