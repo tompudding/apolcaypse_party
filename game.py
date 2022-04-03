@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 100 * 1000
+music_start = 0 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -287,11 +287,13 @@ class Line(object):
 
 
 note_subs = {
-    0: {"q": "a", "e": "d"},  # easy
-    1: {"q": "a", "e": "d"},  # medium
-    2: {"q": "a", "e": "d"},  # hard
-    # expert can do them all!
+    0: {"q": "a", "e": "d", "space": " "},  # easy
+    1: {"q": "a", "e": "d", "space": " "},  # medium
+    2: {"q": "a", "e": "d", "space": " "},  # hard
+    3: {"space": " "},  # expert
 }
+
+print_trans = {" ": "_"}
 
 
 def letter_from_note(note, difficulty):
@@ -327,6 +329,10 @@ class Block:
             )
             letter = letter_from_note(self.note, globals.current_view.difficulty)
             self.key = ord(letter)
+            try:
+                letter = print_trans[letter]
+            except KeyError:
+                pass
             self.letter = globals.text_manager.letter(letter, drawing.texture.TextTypes.SCREEN_RELATIVE)
 
         elapsed = music_pos - self.time
@@ -356,7 +362,8 @@ class Block:
 
 class Track:
     speed = 0.4  # heights per second. I.e 0.5 = take 2 seconds to transit the whole the tack
-    window = 100
+    window_before = 150
+    window_after = 250
 
     def __init__(self, parent, pos, height, notes):
         self.parent = parent
@@ -441,7 +448,7 @@ class Track:
             else:
                 new_in_flight.append(block)
                 # They become open window milliseconds before their target time
-                if not block.open and globals.music_pos >= block.note.time - self.window:
+                if not block.open and globals.music_pos >= block.note.time - self.window_before:
                     try:
                         self.open_by_key[block.key].append(block)
                     except KeyError:
@@ -454,13 +461,15 @@ class Track:
         try:
             hit_blocks = self.open_by_key[key]
         except KeyError:
+            self.parent.miss(None)
             return
 
         for hit_block in hit_blocks:
             # Only permit this if it's within the right amount of time
             hit_time = (globals.music_pos - self.parent.music_offset) - hit_block.note.time
             print(f"{hit_time=}")
-            if abs(hit_time) <= self.window:
+            window = self.window_before if hit_time < 0 else self.window_after
+            if abs(hit_time) < window:
                 self.parent.hit(hit_block)
                 hit_block.mark_hit()
                 hit_block.delete()
@@ -472,6 +481,9 @@ class Track:
                     self.open_by_key[hit_block.key] = a
                 return
                 # del self.open_by_key[key]
+
+        # if we get here it means the key didn't delete any blocks. That's a paddlin'
+        self.parent.miss(None)
 
 
 class HealthBar(ui.UIElement):
