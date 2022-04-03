@@ -3,6 +3,7 @@ import drawing
 from globals.types import Point
 import bisect
 import pygame
+import copy
 
 
 class UIState(object):
@@ -1458,6 +1459,7 @@ class ImageBox(Box):
             self.absolute.bottom_left, self.absolute.top_right, self.level + self.extra_level
         )
         self.quad.set_texture_coordinates(self.tc)
+        self.start_tc = copy.deepcopy(self.quad.tc)
         self.enable()
 
     def resize_image(self, new_size):

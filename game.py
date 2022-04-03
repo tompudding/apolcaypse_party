@@ -15,7 +15,7 @@ music_start = 0 * 1000
 class DifficultyChooser(ui.UIElement):
     def __init__(self, parent, bl, tr, text_options, scale, colour):
         self.text_options = text_options
-        self.current_text = 3
+        self.current_text = 0
         self.scale = scale
         self.text_colour = colour
         self.alignment = (drawing.texture.TextAlignments.CENTRE,)
@@ -363,14 +363,14 @@ class Block:
 
 
 class Track:
-    speed = 0.4  # heights per second. I.e 0.5 = take 2 seconds to transit the whole the tack
+    speed = 0.4  # widths per second. I.e 0.5 = take 2 seconds to transit the whole the tack
     window_before = 150
     window_after = 250
 
     def __init__(self, parent, pos, height, notes):
         self.parent = parent
         self.region = ui.Border(
-            parent, Point(0, pos), Point(1, pos + height), colour=(1, 1, 1, 1), line_width=1
+            parent, Point(0, pos), Point(1, pos + height), colour=(1, 1, 1, 0.7), line_width=1
         )
         # Absolute speed is pixels per ms
         self.absolute_speed = (self.speed * self.region.absolute.size[0]) / 1000
@@ -463,8 +463,7 @@ class Track:
         try:
             hit_blocks = self.open_by_key[key]
         except KeyError:
-            self.parent.miss(None)
-            return
+            return False
 
         for hit_block in hit_blocks:
             # Only permit this if it's within the right amount of time
@@ -481,11 +480,11 @@ class Track:
                     del self.open_by_key[hit_block.key]
                 else:
                     self.open_by_key[hit_block.key] = a
-                return
+                return True
                 # del self.open_by_key[key]
 
         # if we get here it means the key didn't delete any blocks. That's a paddlin'
-        self.parent.miss(None)
+        return False
 
 
 class HealthBar(ui.UIElement):
@@ -536,6 +535,8 @@ class GameView(ui.RootElement):
         super(GameView, self).__init__(Point(0, 0), globals.screen)
 
         self.atlas = drawing.texture.TextureAtlas("atlas_0.png", "atlas.txt", extra_names=None)
+        self.wall_buffer = drawing.QuadBuffer(128)
+        self.wall_atlas = drawing.texture.TextureAtlas("wall_atlas_0.png", "wall_atlas.txt", extra_names=None)
         self.paused = False
         self.music_start = None
         self.main_menu = MainMenu(self, Point(0.1, 0.15), Point(0.9, 0.85))
@@ -553,12 +554,26 @@ class GameView(ui.RootElement):
         self.health_bar = HealthBar(self, Point(0.4, 0.15), Point(0.7, 0.2), 100)
         self.timer = ui.TextBox(
             self,
-            Point(0.9, 0.1),
+            Point(0.85, 0.1),
             Point(1, 0.2),
             format_time(0),
             2,
             colour=drawing.constants.colours.white,
             alignment=drawing.texture.TextAlignments.LEFT,
+        )
+
+        aspect = globals.screen_root.absolute.size.x / globals.screen_root.absolute.size.y
+        tile = 6
+        tc = [[0, 0], [0, tile], [tile * aspect, tile], [tile * aspect, 0]]
+        self.wall_atlas.transform_coords("resource/background/catacombs_0.png", tc)
+
+        self.dungeon = ui.ImageBox(
+            self,
+            Point(0, 0.1),
+            Point(1, 0.9),
+            tc=tc,
+            buffer=self.wall_buffer,
+            level=4,
         )
 
         self.paused = True
@@ -613,7 +628,7 @@ class GameView(ui.RootElement):
         if key == pygame.locals.K_ESCAPE:
             if self.main_menu.enabled:
                 if self.music_start is not None:
-                    return self.resume()
+                    return self.resume(None)
                 else:
                     return None
             self.main_menu.start_button.set_text("Restart")
@@ -621,9 +636,13 @@ class GameView(ui.RootElement):
             self.disable()
             self.paused = True
             pygame.mixer.music.pause()
+            return
 
         for track in self.tracks:
-            track.key_down(key)
+            if track.key_down(key):
+                break
+        else:
+            self.miss(None)
 
     def key_up(self, key):
         pass
@@ -679,8 +698,16 @@ class GameView(ui.RootElement):
         for track in self.tracks:
             track.update(t, music_pos)
 
+        speed = self.left_track.speed
+        tc_max = self.dungeon.start_tc[2][0]
+        extra = ((speed * music_pos * tc_max) / 1000) % (1.0)
+        for i in range(4):
+            new = self.dungeon.start_tc[i][0] + extra
+            self.dungeon.quad.tc[i][0] = new
+
     def draw(self):
         drawing.draw_no_texture(globals.ui_buffer)
+        drawing.draw_all(self.wall_buffer, self.wall_atlas.texture)
         drawing.draw_all(globals.quad_buffer, self.atlas.texture)
         drawing.line_width(1)
         drawing.draw_no_texture(globals.line_buffer)
