@@ -482,7 +482,6 @@ class HealthBar(ui.UIElement):
         self.set_health()
 
     def add(self, amount):
-        return
         self.health += amount
         if self.health > self.max_health:
             self.health = self.max_health
