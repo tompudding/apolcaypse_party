@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 57 * 1000
+music_start = 100 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -102,6 +102,8 @@ class Sprite:
         self.size = self.tr - self.bl
         self.parent = parent
         self.tc_coords = [atlas.texture_coords(name) for name in tc_names]
+        self.smashing_tc_coords = [atlas.texture_coords(f"resource/sprites/a{n}.png") for n in range(1, 5)]
+
         self.quad = drawing.Quad(globals.quad_buffer, tc=self.tc_coords[0])
         self.quad.set_vertices(bl, tr, 50)
         self.per_frame = 1000 / self.fps
@@ -114,6 +116,7 @@ class Sprite:
         self.bolts = [Bolt(atlas) for i in range(16)]
         for bolt in self.bolts:
             bolt.disable()
+        self.smashing = False
 
         self.active_bolts = []
 
@@ -127,12 +130,15 @@ class Sprite:
                 new_bolts.append(bolt)
         self.active_bolts = new_bolts
 
+        animated = False
+
         if self.ducking:
             if music_pos < self.ducking:
                 return
             else:
                 self.ducking = False
                 self.quad.translate(Point(0, -32))
+            animated = True
 
         if self.jumping:
             t = music_pos - self.jumping
@@ -143,6 +149,18 @@ class Sprite:
             pos = self.start_pos + self.pos
             self.quad.set_vertices(pos, pos + self.size, 50)
 
+            animated = True
+
+        if self.smashing:
+            t = music_pos - self.smashing
+            pos = int(t // self.per_frame)
+            if pos < len(self.smashing_tc_coords):
+                self.quad.set_texture_coordinates(self.smashing_tc_coords[pos])
+                animated = True
+            else:
+                self.smashing = False
+
+        if animated:
             return
 
         pos = int(music_pos // self.per_frame) % len(self.tc_coords)
@@ -171,6 +189,12 @@ class Sprite:
         bolt.set_type(num)
         bolt.enable()
         self.active_bolts.append(bolt)
+
+    def smash(self, wall):
+        print("smash!", wall)
+        wall.smash()
+        self.smashing = globals.music_pos
+        # Start a short animation
 
 
 class MainMenu(ui.HoverableBox):
@@ -307,6 +331,7 @@ class Note:
         self.duration = duration
         self.note = note
         self.difficulty = difficulty
+        self.block = None
 
 
 class NoteTiming:
@@ -433,6 +458,7 @@ class Block:
     def __init__(self, time, note, size, pos, speed):
         self.time = time
         self.note = note
+        note.block = self
         self.quad = None
         self.letter = None
         self.start_pos = pos
@@ -442,6 +468,7 @@ class Block:
         self.open = False
         self.done = False
         self.hit = False
+        self.wall = None
 
     def update(self, music_pos):
         if self.done:
@@ -536,6 +563,71 @@ class Wall(Monster):
 
 class BigMonster(Monster):
     image = "resource/sprites/big_monster.png"
+
+
+class DestructableWall:
+    image = "resource/sprites/low_wall.png"
+
+    def __init__(self, time, note, size, pos, speed, block):
+        self.top_size = Point(size.x, size.y * 5 / 6)
+        self.bottom_size = Point(size.x, size.y / 6)
+        self.time = time
+        self.note = note
+        self.bottom_quad = None
+        self.top_quad = None
+        self.letter = None
+        self.start_pos = pos
+        self.speed = speed
+        self.size = size
+        self.pos = self.start_pos
+        self.open = False
+        self.done = False
+        self.hit = False
+        self.block = block
+        block.wall = self
+
+    def update(self, music_pos):
+        if self.done:
+            return self.done
+
+        if self.top_quad is None:
+            # The first time we're called we can grab a qua
+            tc = [[0, 0], [0, 5 / 6], [1, 5 / 6], [1, 0]]
+            globals.current_view.atlas.transform_coords(self.image, tc)
+            self.top_quad = drawing.Quad(globals.quad_buffer, tc=tc)
+            tc = [[0, 0], [0, 1 / 6], [1, 1 / 6], [1, 0]]
+            globals.current_view.atlas.transform_coords(self.image, tc)
+            self.bottom_quad = drawing.Quad(globals.quad_buffer, tc=tc)
+
+        elapsed = music_pos - self.time
+        moved = elapsed * self.speed
+        self.pos = self.start_pos - Point(moved, 0)
+        tr = self.pos + self.size
+
+        z = 10
+        for quad, size, offset in (
+            (self.bottom_quad, self.bottom_size, Point(0, 0)),
+            (self.top_quad, self.top_size, Point(0, 64)),
+        ):
+            if quad:
+                quad.set_vertices(self.pos + offset, self.pos + size + offset, z)
+            z -= 1
+
+        self.done = tr.x <= 0
+        return self.done
+
+    def delete(self):
+        self.done = True
+        if self.top_quad:
+            self.top_quad.delete()
+            self.top_quad = None
+        if self.bottom_quad:
+            self.bottom_quad.delete()
+            self.bottom_quad = None
+
+    def smash(self):
+        self.bottom_quad.delete()
+        self.bottom_quad = None
 
 
 class Track:
@@ -684,7 +776,7 @@ class MonsterTrack(Track):
                         speed=self.absolute_speed,
                     )
                 )
-            if note.note in ["t"]:
+            elif note.note in ["t"]:
                 self.monster_starts.append(
                     BigMonster(
                         time,
@@ -695,7 +787,7 @@ class MonsterTrack(Track):
                     )
                 )
 
-            if note.note in ["d", "e"]:
+            elif note.note in ["d", "e"]:
                 # For these we'll put a wall that needs to be ducked under
                 self.monster_starts.append(
                     Wall(
@@ -704,6 +796,17 @@ class MonsterTrack(Track):
                         size=Point(64, 384),
                         pos=parent.absolute.bottom_right + Point(300, 214 + 48),
                         speed=self.absolute_speed,
+                    )
+                )
+            elif note.note == "space":
+                self.monster_starts.append(
+                    DestructableWall(
+                        time,
+                        note,
+                        size=Point(64, 384) * 1.15,
+                        pos=parent.absolute.bottom_right + Point(300, 214),
+                        speed=self.absolute_speed,
+                        block=note.block,
                     )
                 )
 
@@ -946,6 +1049,8 @@ class GameView(ui.RootElement):
                 self.player.duck()
             elif block.key in range(ord("0"), ord("9")):
                 self.player.shoot(block.key - ord("0"))
+            elif block.key == ord(" "):
+                self.player.smash(block.wall)
 
         self.miss_streak = 0
 
