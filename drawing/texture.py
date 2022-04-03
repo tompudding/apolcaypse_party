@@ -197,6 +197,8 @@ class PetsciiAtlas(TextureAtlas):
             subimage_name = chr(ch)
             if subimage_name.isalpha():
                 subimage_name = chr(ch ^ 0x20)
+            if subimage_name == "_":
+                ch += 48
             # get the row,col pos in the image, with the 0,0 being in the top left
             x = ch & 0xF
             y = ((ch - 0x20) >> 4) & 0xF
