@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 87 * 1000
+music_start = 100 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -452,24 +452,26 @@ class Track:
 
     def key_down(self, key):
         try:
-            hit_block = self.open_by_key[key][0]
+            hit_blocks = self.open_by_key[key]
         except KeyError:
             return
 
-        # Only permit this if it's within the right amount of time
-        hit_time = (globals.music_pos - self.parent.music_offset) - hit_block.note.time
-        print(f"{hit_time=}")
-        if abs(hit_time) <= self.window:
-            self.parent.hit(hit_block)
-            hit_block.mark_hit()
-            hit_block.delete()
-            a = self.open_by_key[hit_block.key]
-            a.pop(0)
-            if not a:
-                del self.open_by_key[hit_block.key]
-            else:
-                self.open_by_key[hit_block.key] = a
-            # del self.open_by_key[key]
+        for hit_block in hit_blocks:
+            # Only permit this if it's within the right amount of time
+            hit_time = (globals.music_pos - self.parent.music_offset) - hit_block.note.time
+            print(f"{hit_time=}")
+            if abs(hit_time) <= self.window:
+                self.parent.hit(hit_block)
+                hit_block.mark_hit()
+                hit_block.delete()
+                a = self.open_by_key[hit_block.key]
+                a.pop(0)
+                if not a:
+                    del self.open_by_key[hit_block.key]
+                else:
+                    self.open_by_key[hit_block.key] = a
+                return
+                # del self.open_by_key[key]
 
 
 class HealthBar(ui.UIElement):
