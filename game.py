@@ -142,6 +142,9 @@ class Sprite:
     gravity = -0.007
     jump_velocity = 2
     duck_duration = 200
+    shield_duration = 500
+    shield_size = Point(128, 128)
+    shield_offset = Point(0, 32)
 
     def __init__(self, parent, bl, tr, tc_names, atlas):
         self.bl = bl
@@ -165,10 +168,23 @@ class Sprite:
             bolt.disable()
         self.smashing = False
 
+        self.shield_tc = [atlas.texture_coords(f"resource/sprites/shield_{n}.png") for n in range(1, 8)]
+
+        self.shield_quad = drawing.Quad(globals.quad_buffer)
+        self.shield_quad.disable()
+        self.shield = False
+
         self.active_bolts = []
 
     def get_centre(self):
         return self.bl + self.pos + (self.size / 2)
+
+    def enable_shield(self, num):
+        self.shield_quad.set_texture_coordinates(self.shield_tc[num % len(self.shield_tc)])
+        self.shield = globals.music_pos + self.shield_duration
+        pos = self.start_pos + self.pos - self.shield_offset
+        self.shield_quad.set_vertices(pos, pos + self.shield_size, 51)
+        self.shield_quad.enable()
 
     def update(self, music_pos):
         new_bolts = []
@@ -179,6 +195,10 @@ class Sprite:
             else:
                 new_bolts.append(bolt)
         self.active_bolts = new_bolts
+
+        if self.shield and music_pos > self.shield:
+            self.shield = False
+            self.shield_quad.disable()
 
         animated = False
 
@@ -198,6 +218,8 @@ class Sprite:
                 self.jumping = False
             pos = self.start_pos + self.pos
             self.quad.set_vertices(pos, pos + self.size, 50)
+            if self.shield:
+                self.shield_quad.set_vertices(pos, pos + self.shield_size - self.shield_offset, 51)
 
             animated = True
 
@@ -1017,7 +1039,6 @@ class HealthBar(ui.UIElement):
         self.set_health()
 
     def add(self, amount):
-        return
         if amount < 0:
             drawing.shake_screen(20, 500)
         self.health += amount
@@ -1168,6 +1189,7 @@ class GameView(ui.UIRoot):
             elif block.key in range(ord("0"), ord("9")):
                 if block.bolt:
                     block.bolt.done = True
+                self.player.enable_shield(block.key - ord("0"))
             elif block.key == ord(" "):
                 self.player.smash(block.wall)
 

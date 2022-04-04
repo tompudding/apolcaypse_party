@@ -1,7 +1,6 @@
 nice to haves:
 --------------
 high scores
-ghost blasts
 hit effects
 make easy more fun
 
@@ -13,3 +12,4 @@ done:
 5) sort out difficulties to be more sensible
 
 screen shake
+ghost blasts
