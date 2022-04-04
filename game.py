@@ -1095,8 +1095,8 @@ class GameView(ui.UIRoot):
         self.health_bar = HealthBar(self, Point(0.05, 0.02), Point(0.2, 0.08), 100)
         self.timer = ui.TextBox(
             self,
-            Point(0.85, 0.1),
-            Point(1, 0.2),
+            Point(0.15, 0),
+            Point(1, 0.1),
             format_time(0),
             2,
             colour=drawing.constants.colours.white,
