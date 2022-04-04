@@ -9,13 +9,13 @@ import traceback
 import random
 import os
 
-music_start = 150 * 1000
+music_start = 0 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
     def __init__(self, parent, bl, tr, text_options, scale, colour):
         self.text_options = text_options
-        self.current_text = 3
+        self.current_text = 0
         self.scale = scale
         self.text_colour = colour
         self.alignment = (drawing.texture.TextAlignments.CENTRE,)
