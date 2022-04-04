@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 1000
+music_start = 0 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -726,8 +726,6 @@ class Track:
         self.absolute_speed = (self.speed * self.region.absolute.size[0]) / 1000
         self.absolute_line_pos = parent.get_absolute(Point(parent.line_pos, 0)).x
 
-        print(f"{self.absolute_speed=} {self.absolute_line_pos=}"),
-
         self.notes = list(notes)
 
         self.starts = []
@@ -735,8 +733,6 @@ class Track:
         block_size = self.region.absolute.size[1] * 0.6
         transit_pixels = self.region.absolute.size[0] - self.absolute_line_pos + (block_size / 2)
         self.transit_ms = transit_pixels / self.absolute_speed
-
-        print(f"{self.transit_ms=}", self.notes)
 
         for note in self.notes:
             # The time this wants introducing is the time that it should cross the line minus the amount of
@@ -1159,7 +1155,6 @@ class GameView(ui.UIRoot):
         raise SystemExit()
 
     def miss(self, block):
-        print("Missed one!")
         try:
             damage = self.damage[self.miss_streak]
         except IndexError:
@@ -1178,7 +1173,6 @@ class GameView(ui.UIRoot):
             pygame.mixer.music.pause()
 
     def hit(self, block):
-        print("Got one!")
         if block:
             if block.key in [ord("a"), ord("q")]:
                 self.player.jump()
@@ -1332,7 +1326,6 @@ class GameView(ui.UIRoot):
             return super(GameView, self).mouse_motion(pos, rel, handled)
 
     def mouse_button_down(self, pos, button):
-        print("Mouse down", pos, button)
         if self.paused:
             return super(GameView, self).mouse_button_down(pos, button)
 
@@ -1341,7 +1334,5 @@ class GameView(ui.UIRoot):
     def mouse_button_up(self, pos, button):
         if self.paused:
             return super(GameView, self).mouse_button_up(pos, button)
-
-        print("Mouse up", pos, button)
 
         return False, False
