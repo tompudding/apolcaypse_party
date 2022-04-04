@@ -322,6 +322,8 @@ class GameOver(ui.HoverableBox):
 
     def replay(self, pos):
         self.parent.main_menu.enable()
+        self.parent.previous_runs = 0
+        self.parent.gaps = 0
         self.disable()
 
     def enable(self):
@@ -945,6 +947,7 @@ class HealthBar(ui.UIElement):
         self.set_health()
 
     def add(self, amount):
+        return
         if amount < 0:
             drawing.shake_screen(20, 500)
         self.health += amount
@@ -1180,7 +1183,7 @@ class GameView(ui.UIRoot):
                 self.previous_runs += globals.music_pos - self.previous_runs
                 self.gaps += self.gap
                 self.difficulty += 1
-                if self.difficulty >= 3:
+                if self.difficulty > 3:
                     self.game_over = GameOver(self, Point(0.2, 0.2), Point(0.8, 0.8))
                     self.paused = True
                     return
