@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 0 * 1000
+music_start = 140 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -63,6 +63,10 @@ class Bolt:
         self.size = Point(64, 64)
         self.atlas = atlas
         self.quad = drawing.Quad(globals.quad_buffer)
+        self.target_time = None
+        self.block = None
+        self.done = False
+        self.bolt = None
 
     def disable(self):
         self.quad.disable()
@@ -70,30 +74,51 @@ class Bolt:
     def enable(self):
         self.quad.enable()
 
-    def set_pos(self, pos, target):
-        self.pos = pos
+    def set_pos(self, source, target):
+        self.source = source
+        self.pos = source.get_centre()
         self.target = target
+        print("Set pos to ", self.pos, self.target)
         pos = self.pos + (self.size / 2)
         self.quad.set_vertices(self.pos, self.pos + self.size, 10)
         self.last = globals.music_pos
 
+    def get_centre(self):
+        return self.pos + (self.size / 2)
+
+    def finish(self):
+        self.done = False
+        if self.block:
+            self.block.bolt = None
+            self.block = None
+        return True
+
     def update(self, music_pos):
+        if self.done:
+            return self.finish()
+
         elapsed = music_pos - self.last
         self.last = music_pos
         distance = elapsed * self.speed
-        diff = self.target.get_centre() - self.pos
+        diff = self.target.get_centre() - self.get_centre()
         length = diff.length()
-        if length < 50:
-            return True
+        if length < 30 or music_pos >= self.target_time:
+            return self.finish()
+
+        # We want to set our speed such that we think it will arrive exactly on time
+        speed = length / (self.target_time - music_pos)
         vector = diff / length
-        move = vector * self.speed
+        move = vector * speed * elapsed
         self.pos += move
         self.quad.set_vertices(self.pos, self.pos + self.size, 10)
 
-    def set_type(self, num):
+    def set_type(self, num, time, block):
+        self.block = block
+        block.bolt = self
         self.quad.set_texture_coordinates(
             self.atlas.texture_coords(f"resource/sprites/magic_bolt_{num%8+1}.png")
         )
+        self.target_time = globals.music_pos + time
 
 
 class Sprite:
@@ -125,6 +150,9 @@ class Sprite:
         self.smashing = False
 
         self.active_bolts = []
+
+    def get_centre(self):
+        return self.bl + self.pos + (self.size / 2)
 
     def update(self, music_pos):
         new_bolts = []
@@ -184,15 +212,14 @@ class Sprite:
         self.quad.set_texture_coordinates(self.tc_coords[2])
         self.quad.translate(Point(0, 32))
 
-    def shoot(self, num):
+    def shoot(self, num, time, block):
         # We create a new active bolt
         if len(self.bolts) == 0:
             return
-
         bolt = self.bolts.pop(0)
-        bolt.set_pos(Point(*self.quad.vertex[0][:2]), self.parent.right_track)
-        bolt.target = self.parent.right_track
-        bolt.set_type(num)
+        bolt.set_pos(self.parent.right_track, self)
+        # bolt.target = self.parent.right_track
+        bolt.set_type(num, time, block)
         bolt.enable()
         self.active_bolts.append(bolt)
 
@@ -485,6 +512,7 @@ class Block:
         self.done = False
         self.hit = False
         self.wall = None
+        self.bolt = None
 
     def update(self, music_pos):
         if self.done:
@@ -884,6 +912,7 @@ class MonsterTrack(Track):
 class KingTrack(Track):
     # The king track will manage the position of the floating ghost that can be hit with magic missiles
     image = "resource/sprites/ghost.png"
+    blast_time = 2000
 
     def __init__(self, parent, pos, height, notes, atlas):
         super().__init__(parent, pos, height, notes, atlas)
@@ -896,6 +925,17 @@ class KingTrack(Track):
         self.tr = self.bl + self.size
         self.quad.set_vertices(self.bl, self.tr, 10)
 
+        self.bolt_starts = []
+        bolt_size = 64
+        # We also want to manage the devil positions
+        for note in self.notes:
+            # The time this wants introducing is the time that it should cross the line minus the amount of
+            # time that it will take to go from the top to the line pos
+            time = note.time - self.blast_time + parent.previous_runs + parent.gaps + self.window_after
+
+            if len(note.note) == 1 and ord(note.note) in range(ord("0"), ord("9")):
+                self.bolt_starts.append((time, note))
+
     def update(self, t, music_pos):
         super().update(t, music_pos)
 
@@ -906,6 +946,20 @@ class KingTrack(Track):
         self.current_pos = self.bl + Point(x, y)
 
         self.quad.set_vertices(self.current_pos, self.tr + Point(x, y), 10)
+
+        # Launch bolts at the player at the right time
+        num_shot = 0
+        for i in range(len(self.bolt_starts)):
+            time, note = self.bolt_starts[i]
+
+            if time >= music_pos:
+                break
+
+            self.parent.player.shoot(ord(note.note) - ord("0"), self.blast_time, note.block)
+            num_shot += 1
+
+        if num_shot > 0:
+            self.bolt_starts = self.bolt_starts[num_shot:]
 
     def delete(self):
         super().delete()
@@ -1096,7 +1150,8 @@ class GameView(ui.UIRoot):
             elif block.key in [ord("d"), ord("e")]:
                 self.player.duck()
             elif block.key in range(ord("0"), ord("9")):
-                self.player.shoot(block.key - ord("0"))
+                if block.bolt:
+                    block.bolt.done = True
             elif block.key == ord(" "):
                 self.player.smash(block.wall)
 
