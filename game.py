@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 0 * 1000
+music_start = 145 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -82,6 +82,9 @@ class Bolt:
 
     def enable(self):
         self.quad.enable()
+
+    def delete(self):
+        self.quad.delete()
 
     def set_pos(self, source, target):
         self.source = source
@@ -175,6 +178,16 @@ class Sprite:
         self.shield = False
 
         self.active_bolts = []
+
+    def delete(self):
+        self.quad.delete()
+        self.shield_quad.delete()
+
+        for bolt in self.bolts:
+            bolt.delete()
+
+        for bolt in self.active_bolts:
+            bolt.delete()
 
     def get_centre(self):
         return self.bl + self.pos + (self.size / 2)
@@ -1102,14 +1115,8 @@ class GameView(ui.UIRoot):
             buffer=self.wall_buffer,
             level=4,
         )
-
-        self.player = Sprite(
-            self,
-            self.get_absolute(Point(0.45, 0.30)),
-            self.get_absolute(Point(0.55, 0.40)),
-            [f"resource/sprites/k{n}.png" for n in range(1, 9)],
-            self.atlas,
-        )
+        self.player = None
+        self.setup_player()
 
         self.paused = True
         self.tracks = []
@@ -1131,6 +1138,17 @@ class GameView(ui.UIRoot):
         )
         self.fade_text.disable()
         self.fading_text = False
+
+    def setup_player(self):
+        if self.player:
+            self.player.delete()
+        self.player = Sprite(
+            self,
+            self.get_absolute(Point(0.45, 0.30)),
+            self.get_absolute(Point(0.55, 0.40)),
+            [f"resource/sprites/k{n}.png" for n in range(1, 9)],
+            self.atlas,
+        )
 
     def setup_tracks(self):
         for track in self.tracks:
@@ -1222,6 +1240,7 @@ class GameView(ui.UIRoot):
         self.miss_streak = 0
         pygame.mixer.music.stop()
         self.difficulty = self.main_menu.get_difficulty()
+        self.setup_player()
         self.setup_tracks()
         self.previous_runs = 0
         self.fade_text.disable()
