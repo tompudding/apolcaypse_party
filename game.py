@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 140 * 1000
+music_start = 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -56,6 +56,7 @@ class DifficultyChooser(ui.UIElement):
 
 class Bolt:
     speed = 5
+    angle_speed = 0.01
 
     def __init__(self, atlas):
         self.pos = None
@@ -67,6 +68,14 @@ class Bolt:
         self.block = None
         self.done = False
         self.bolt = None
+        self.coords = (
+            (-self.size[0] / 2, -self.size[1] / 2),
+            (-self.size[0] / 2, self.size[1] / 2),
+            (self.size[0] / 2, self.size[1] / 2),
+            (self.size[0] / 2, -self.size[1] / 2),
+        )
+        self.radius = 0.5 * math.sqrt(2) * self.size[0]
+        self.angle = 0
 
     def disable(self):
         self.quad.disable()
@@ -78,7 +87,6 @@ class Bolt:
         self.source = source
         self.pos = source.get_centre()
         self.target = target
-        print("Set pos to ", self.pos, self.target)
         pos = self.pos + (self.size / 2)
         self.quad.set_vertices(self.pos, self.pos + self.size, 10)
         self.last = globals.music_pos
@@ -105,12 +113,20 @@ class Bolt:
         if length < 30 or music_pos >= self.target_time:
             return self.finish()
 
+        self.angle = self.angle + (elapsed * self.angle_speed)
         # We want to set our speed such that we think it will arrive exactly on time
         speed = length / (self.target_time - music_pos)
         vector = diff / length
         move = vector * speed * elapsed
         self.pos += move
-        self.quad.set_vertices(self.pos, self.pos + self.size, 10)
+
+        vertices = [0, 0, 0, 0]
+        for i, coord in enumerate(self.coords):
+            p = coord[0] + coord[1] * 1j
+            distance, old_angle = cmath.polar(p)
+            c = cmath.rect(self.radius, old_angle + self.angle)
+            vertices[i] = self.pos + Point(c.real, c.imag) + self.size / 2
+        self.quad.set_all_vertices(vertices, 10)
 
     def set_type(self, num, time, block):
         self.block = block
@@ -912,7 +928,7 @@ class MonsterTrack(Track):
 class KingTrack(Track):
     # The king track will manage the position of the floating ghost that can be hit with magic missiles
     image = "resource/sprites/ghost.png"
-    blast_time = 2000
+    blast_time = 1000
 
     def __init__(self, parent, pos, height, notes, atlas):
         super().__init__(parent, pos, height, notes, atlas)
