@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 145 * 1000
+music_start = 0 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -232,7 +232,8 @@ class Sprite:
             pos = self.start_pos + self.pos
             self.quad.set_vertices(pos, pos + self.size, 50)
             if self.shield:
-                self.shield_quad.set_vertices(pos, pos + self.shield_size - self.shield_offset, 51)
+                pos -= self.shield_offset
+                self.shield_quad.set_vertices(pos, pos + self.shield_size, 51)
 
             animated = True
 
