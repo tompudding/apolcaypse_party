@@ -1000,7 +1000,9 @@ class Slider(UIElement):
         self.pointer_quad.disable()
         self.dragging = False
         # now do the blips
-        for offset in self.offsets:
+        for i, offset in enumerate(self.offsets):
+            if i % 20:
+                continue
             line = drawing.Quad(globals.ui_buffer)
             line_bl = (
                 self.clickable_area.absolute.bottom_left

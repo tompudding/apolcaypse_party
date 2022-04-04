@@ -317,6 +317,23 @@ class MainMenu(ui.HoverableBox):
             colour=drawing.constants.colours.white,
             alignment=drawing.texture.TextAlignments.LEFT,  # This should be right aligned really but apparently I didn't implement that
         )
+        self.audio_offsets = [(offset, i) for i, offset in enumerate(range(-200, 201))]
+        self.slider = ui.Slider(
+            self, Point(0.1, 0.3), Point(0.9, 0.4), self.audio_offsets, self.slider_callback
+        )
+        self.slider.index = int(len(self.audio_offsets) // 2)
+        self.slider.set_pointer()
+        self.slider.enable()
+        self.audio_offset = 0
+        self.slider_text = ui.TextBox(
+            self,
+            Point(0.3, 0.25),
+            Point(0.7, 0.3),
+            f"Audio delay : {self.audio_offset:2d} ms",
+            scale=2,
+            alignment=drawing.texture.TextAlignments.CENTRE,
+        )
+
         self.difficulty = DifficultyChooser(
             self,
             Point(0.44, 0.56),
@@ -345,6 +362,10 @@ class MainMenu(ui.HoverableBox):
         self.parent.init_level()
         self.parent.stop_throw()
         self.parent.paused = False
+
+    def slider_callback(self, index):
+        self.audio_offset = self.audio_offsets[index][0]
+        self.slider_text.set_text(f"Audio delay : {self.audio_offset:2d} ms")
 
     def enable(self):
         if not self.enabled:
@@ -837,9 +858,7 @@ class Track:
 
         for hit_block in hit_blocks:
             # Only permit this if it's within the right amount of time
-            hit_time = (
-                globals.music_pos - self.parent.music_offset - self.parent.previous_runs
-            ) - hit_block.note.time
+            hit_time = (globals.music_pos - self.parent.previous_runs) - hit_block.note.time
             print(f"{hit_time=}")
             window = self.window_before if hit_time < 0 else self.window_after
             if abs(hit_time) < window:
@@ -1061,14 +1080,13 @@ class HealthBar(ui.UIElement):
 
 
 def format_time(t):
-    seconds = globals.music_pos // 1000
-    ms = globals.music_pos % 1000
+    seconds = t // 1000
+    ms = t % 1000
     return f"{seconds:4d}.{ms:03d}"
 
 
 class GameView(ui.UIRoot):
     text_fade_duration = 1000
-    music_offset = 0
     line_pos = 0.3
     gap = 1000
 
@@ -1186,7 +1204,8 @@ class GameView(ui.UIRoot):
             self.main_menu.start_button.set_text("Play")
             self.main_menu.enable()
             self.main_menu.resume_button.disable()
-            self.main_menu.info.set_text(f"You lasted {format_time(globals.music_pos)}. Try again!")
+            score = globals.music_pos - self.main_menu.audio_offset
+            self.main_menu.info.set_text(f"You lasted {format_time(score)}. Try again!")
             self.disable()
             self.paused = True
             pygame.mixer.music.pause()
@@ -1271,7 +1290,7 @@ class GameView(ui.UIRoot):
             pygame.mixer.music.play(start=music_start / 1000)
             self.music_start = t
 
-        self.timer.set_text(format_time(globals.music_pos))
+        self.timer.set_text(format_time(globals.music_pos - self.main_menu.audio_offset))
 
         if self.gapping:
             core_music_pos = t - self.gapping + self.gap
@@ -1308,7 +1327,7 @@ class GameView(ui.UIRoot):
                 self.fading_text = True
 
         music_pos = globals.music_pos = (
-            self.previous_runs + core_music_pos + self.music_offset + music_start
+            self.previous_runs + core_music_pos + self.main_menu.audio_offset + music_start
         )  # t - self.music_start
         # print(f"{core_music_pos=} {music_pos=}")
 
