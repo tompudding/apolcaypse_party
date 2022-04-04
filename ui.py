@@ -703,6 +703,8 @@ class FaderTextBox(TextBox):
     def __init__(self, *args, **kwargs):
         super(FaderTextBox, self).__init__(*args, **kwargs)
         self.draw_scale = 1
+        self.end_time = 0
+        self.start_time = 0
 
     def __hash__(self):
         return id(self)
@@ -755,18 +757,18 @@ class FaderTextBox(TextBox):
             for quad in self.quads:
                 quad.set_colour(new_colour)
 
-    def reallocate_resources(self):
-        self.quad_buffer = drawing.QuadBuffer(1024)
-        self.text_type = drawing.texture.TextTypes.CUSTOM
-        self.quads = [self.text_manager.letter(char, self.text_type, self.quad_buffer) for char in self.text]
+    # def reallocate_resources(self):
+    #     self.quad_buffer = drawing.QuadBuffer(1024)
+    #     self.text_type = drawing.texture.TextTypes.CUSTOM
+    #     self.quads = [self.text_manager.letter(char, self.text_type, self.quad_buffer) for char in self.text]
 
-    def draw(self):
-        drawing.reset_state()
-        drawing.scale(globals.tiles.zoom, globals.tiles.zoom, 1)
-        drawing.translate(-globals.tiles.viewpos.get().x, -globals.tiles.viewpos.get().y, 0)
-        drawing.translate(self.absolute.bottom_left.x, self.absolute.bottom_left.y, 0)
-        drawing.scale(self.draw_scale * globals.tiles.zoom, self.draw_scale * globals.tiles.zoom, 1)
-        drawing.draw_all(self.quad_buffer, globals.text_manager.atlas.texture)
+    # def draw(self):
+    #     drawing.reset_state()
+    #     drawing.scale(globals.tiles.zoom, globals.tiles.zoom, 1)
+    #     drawing.translate(-globals.tiles.viewpos.get().x, -globals.tiles.viewpos.get().y, 0)
+    #     drawing.translate(self.absolute.bottom_left.x, self.absolute.bottom_left.y, 0)
+    #     drawing.scale(self.draw_scale * globals.tiles.zoom, self.draw_scale * globals.tiles.zoom, 1)
+    #     drawing.draw_all(self.quad_buffer, globals.text_manager.atlas.texture)
 
 
 class ScrollTextBox(TextBox):

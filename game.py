@@ -9,7 +9,7 @@ import traceback
 import random
 import os
 
-music_start = 100 * 1000
+music_start = 150 * 1000
 
 
 class DifficultyChooser(ui.UIElement):
@@ -41,11 +41,17 @@ class DifficultyChooser(ui.UIElement):
 
     def left(self, pos):
         self.current_text = (self.current_text + len(self.text_options) - 1) % len(self.text_options)
-        self.text.set_text(self.text_options[self.current_text])
+        self.update()
 
     def right(self, pos):
         self.current_text = (self.current_text + 1) % len(self.text_options)
+        self.update()
+
+    def update(self):
         self.text.set_text(self.text_options[self.current_text])
+
+    def get_text(self):
+        return self.text_options[self.current_text]
 
 
 class Bolt:
@@ -285,6 +291,13 @@ class MainMenu(ui.HoverableBox):
     def get_difficulty(self):
         return self.difficulty.current_text
 
+    def get_difficulty_text(self):
+        return self.difficulty.get_text()
+
+    def set_difficulty(self, difficulty):
+        self.difficulty.current_text = difficulty
+        self.difficulty.update()
+
 
 class GameOver(ui.HoverableBox):
     line_width = 1
@@ -296,7 +309,7 @@ class GameOver(ui.HoverableBox):
             self,
             Point(0, 0.5),
             Point(1, 0.6),
-            "You Kept the Streak Alive! Amazing!",
+            f"You won! Inconceivable, with the best possible time of {format_time(globals.music_pos)}",
             2,
             colour=drawing.constants.colours.white,
             alignment=drawing.texture.TextAlignments.CENTRE,
@@ -308,7 +321,7 @@ class GameOver(ui.HoverableBox):
         self.quit_button = ui.TextBoxButton(self, "Quit", Point(0.7, 0.1), size=2, callback=parent.quit)
 
     def replay(self, pos):
-        self.parent.replay()
+        self.parent.main_menu.enable()
         self.disable()
 
     def enable(self):
@@ -466,6 +479,7 @@ class Block:
         self.size = size
         self.pos = self.start_pos
         self.open = False
+        self.closed = False
         self.done = False
         self.hit = False
         self.wall = None
@@ -659,7 +673,7 @@ class Track:
         for note in self.notes:
             # The time this wants introducing is the time that it should cross the line minus the amount of
             # time that it will take to go from the top to the line pos
-            time = note.time - self.transit_ms
+            time = note.time - self.transit_ms + parent.previous_runs + parent.gaps
             self.starts.append(
                 Block(
                     time,
@@ -704,26 +718,36 @@ class Track:
             if done:
                 finished_blocks.append(block)
                 block.delete()
-                if not block.hit:
-                    self.parent.miss(block)
-                try:
-                    a = self.open_by_key[block.key]
-                    a = [b for b in a if b is not block]
-                    if not a:
-                        del self.open_by_key[block.key]
-                    else:
-                        self.open_by_key[block.key] = a
-                except KeyError:
-                    pass
             else:
                 new_in_flight.append(block)
                 # They become open window milliseconds before their target time
-                if not block.open and globals.music_pos >= block.note.time - self.window_before:
+                block_time = block.note.time + self.parent.previous_runs + self.parent.gaps
+                if (
+                    not block.open
+                    and not block.closed
+                    and globals.music_pos >= block_time - self.window_before
+                ):
                     try:
                         self.open_by_key[block.key].append(block)
                     except KeyError:
                         self.open_by_key[block.key] = [block]
                     block.open = True
+
+                elif block.open and globals.music_pos >= block_time + self.window_after:
+                    # You missed your chance to get this one buddy!
+                    if not block.hit:
+                        self.parent.miss(block)
+                    block.open = False
+                    block.closed = True
+                    try:
+                        a = self.open_by_key[block.key]
+                        a = [b for b in a if b is not block]
+                        if not a:
+                            del self.open_by_key[block.key]
+                        else:
+                            self.open_by_key[block.key] = a
+                    except KeyError:
+                        pass
 
         self.in_flight = new_in_flight
 
@@ -735,13 +759,17 @@ class Track:
 
         for hit_block in hit_blocks:
             # Only permit this if it's within the right amount of time
-            hit_time = (globals.music_pos - self.parent.music_offset) - hit_block.note.time
+            hit_time = (
+                globals.music_pos - self.parent.music_offset - self.parent.previous_runs
+            ) - hit_block.note.time
             print(f"{hit_time=}")
             window = self.window_before if hit_time < 0 else self.window_after
             if abs(hit_time) < window:
                 self.parent.hit(hit_block)
                 hit_block.mark_hit()
                 hit_block.delete()
+                hit_block.closed = True
+                hit_block.open = False
                 a = self.open_by_key[hit_block.key]
                 a.pop(0)
                 if not a:
@@ -765,7 +793,7 @@ class MonsterTrack(Track):
         for note in self.notes:
             # The time this wants introducing is the time that it should cross the line minus the amount of
             # time that it will take to go from the top to the line pos
-            time = note.time - self.transit_ms
+            time = note.time - self.transit_ms + parent.previous_runs + parent.gaps
             if note.note in ["a", "q"]:
                 self.monster_starts.append(
                     Monster(
@@ -917,6 +945,8 @@ class HealthBar(ui.UIElement):
         self.set_health()
 
     def add(self, amount):
+        if amount < 0:
+            drawing.shake_screen(20, 500)
         self.health += amount
         if self.health > self.max_health:
             self.health = self.max_health
@@ -932,10 +962,11 @@ def format_time(t):
     return f"{seconds:4d}.{ms:03d}"
 
 
-class GameView(ui.RootElement):
+class GameView(ui.UIRoot):
     text_fade_duration = 1000
     music_offset = 0
     line_pos = 0.3
+    gap = 1000
 
     def __init__(self):
         super(GameView, self).__init__(Point(0, 0), globals.screen)
@@ -992,10 +1023,24 @@ class GameView(ui.RootElement):
 
         self.paused = True
         self.tracks = []
+        self.previous_runs = 0
+        self.gaps = 0
+        self.gapping = 0
         self.setup_tracks()
         self.disable()
         self.damage = [1, 2, 4, 8]
         self.miss_streak = 0
+        self.fade_text = ui.FaderTextBox(
+            self,
+            Point(0, 0),
+            Point(1, 0.9),
+            scale=4,
+            text="A monkey",
+            colour=(1, 1, 1, 1),
+            alignment=drawing.texture.TextAlignments.CENTRE,
+        )
+        self.fade_text.disable()
+        self.fading_text = False
 
     def setup_tracks(self):
         for track in self.tracks:
@@ -1028,7 +1073,7 @@ class GameView(ui.RootElement):
 
         self.health_bar.add(-damage)
         self.miss_streak += 1
-        if 0 and self.health_bar.health <= 0:
+        if self.health_bar.health <= 0:
             # Bring the menu back up, but remove the resume button
             self.main_menu.start_button.set_text("Play")
             self.main_menu.enable()
@@ -1088,6 +1133,8 @@ class GameView(ui.RootElement):
         pygame.mixer.music.stop()
         self.difficulty = self.main_menu.get_difficulty()
         self.setup_tracks()
+        self.previous_runs = 0
+        self.fade_text.disable()
 
     def resume(self, pos):
         self.main_menu.disable()
@@ -1102,8 +1149,13 @@ class GameView(ui.RootElement):
         self.health_bar.disable()
 
     def update(self, t):
+        global music_start
+
         if self.paused:
             return
+
+        if self.fading_text:
+            self.fading_text = not self.fade_text.update(t)
 
         if self.music_start is None:
             pygame.mixer.music.play(start=music_start / 1000)
@@ -1111,9 +1163,44 @@ class GameView(ui.RootElement):
 
         self.timer.set_text(format_time(globals.music_pos))
 
+        if self.gapping:
+            core_music_pos = t - self.gapping + self.gap
+
+            if t >= self.gapping:
+                pygame.mixer.music.play(start=music_start / 1000)
+                self.music_start = t
+                self.gapping = 0
+                self.gaps = 0
+                self.previous_runs += self.gap
+
+        if not self.gapping:
+            core_music_pos = pygame.mixer.music.get_pos()
+            if core_music_pos < 0:
+                # It looped
+                self.previous_runs += globals.music_pos - self.previous_runs
+                self.gaps += self.gap
+                self.difficulty += 1
+                if self.difficulty >= 3:
+                    self.game_over = GameOver(self, Point(0.2, 0.2), Point(0.8, 0.8))
+                    self.paused = True
+                    return
+                self.main_menu.set_difficulty(self.difficulty)
+                self.gapping = globals.t + self.gap
+                self.setup_tracks()
+                music_start = 0
+                core_music_pos = 0
+                difficulty_text = self.main_menu.get_difficulty_text()
+                self.fade_text.set_text(f"{difficulty_text} Difficulty!")
+                self.fade_text.SetFade(
+                    globals.t + 1000, globals.t + 3000, end_size=4, end_colour=(1, 0, 0, 0)
+                )
+                self.fade_text.enable()
+                self.fading_text = True
+
         music_pos = globals.music_pos = (
-            pygame.mixer.music.get_pos() + self.music_offset + music_start
+            self.previous_runs + core_music_pos + self.music_offset + music_start
         )  # t - self.music_start
+        # print(f"{core_music_pos=} {music_pos=}")
 
         # new_notes = list(self.notes.get_notes(music_pos))
         # if new_notes:
@@ -1141,7 +1228,7 @@ class GameView(ui.RootElement):
         drawing.draw_no_texture(globals.ui_buffer)
         drawing.draw_all(self.wall_buffer, self.wall_atlas.texture)
         drawing.draw_all(globals.quad_buffer, self.atlas.texture)
-        drawing.line_width(1)
+        drawing.line_width(3)
         drawing.draw_no_texture(globals.line_buffer)
 
     def mouse_motion(self, pos, rel, handled):

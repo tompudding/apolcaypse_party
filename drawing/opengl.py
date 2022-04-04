@@ -10,22 +10,24 @@ from globals.types import Point
 import globals
 import time
 from . import constants
+import random
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
+
 class LightTypes:
     AMBIENT = 1
-    POINT   = 2
-    SCREEN  = 3 #This also does an ambient light to save passes, but you should only do one of these
+    POINT = 2
+    SCREEN = 3  # This also does an ambient light to save passes, but you should only do one of these
 
 
 class GeometryBuffer(object):
-    TEXTURE_TYPE_DIFFUSE  = 0
-    TEXTURE_TYPE_NORMAL   = 1
+    TEXTURE_TYPE_DIFFUSE = 0
+    TEXTURE_TYPE_NORMAL = 1
     TEXTURE_TYPE_DISPLACEMENT = 2
-    TEXTURE_TYPE_OCCLUDE  = 3
-    TEXTURE_TYPE_SHADOW   = 4  # Is this right? Not sure
-    NUM_TEXTURES          = 4
+    TEXTURE_TYPE_OCCLUDE = 3
+    TEXTURE_TYPE_SHADOW = 4  # Is this right? Not sure
+    NUM_TEXTURES = 4
 
     def __init__(self, width, height):
         self.fbo = glGenFramebuffers(1)
@@ -36,12 +38,12 @@ class GeometryBuffer(object):
             self.unbind()
 
     def init_bound(self, width, height):
-        print(f'Geometry buffer size {width} {height}')
+        print(f"Geometry buffer size {width} {height}")
         self.textures = glGenTextures(self.NUM_TEXTURES)
         if self.NUM_TEXTURES == 1:
             # Stupid inconsistent interface
             self.textures = [self.textures]
-        print('MAIN Textures:', self.textures)
+        print("MAIN Textures:", self.textures)
         self.depth_texture = glGenTextures(1)
         glActiveTexture(GL_TEXTURE0)
 
@@ -50,26 +52,29 @@ class GeometryBuffer(object):
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, None)
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 +
-                                   i, GL_TEXTURE_2D, self.textures[i], 0)
+            glFramebufferTexture2D(
+                GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, self.textures[i], 0
+            )
 
         glBindTexture(GL_TEXTURE_2D, self.depth_texture)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width,
-                     height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, None)
+        glTexImage2D(
+            GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, None
+        )
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, self.depth_texture, 0)
 
-        glDrawBuffers([GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1,
-                       GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3])
+        glDrawBuffers(
+            [GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3]
+        )
         if glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE:
             print(glCheckFramebufferStatus(GL_FRAMEBUFFER))
-            print('crapso2')
+            print("crapso2")
             raise TypeError
 
     def bind_for_writing(self):
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, self.fbo)
 
     def bind_for_reading(self):
-        #glBindFramebuffer(GL_READ_FRAMEBUFFER, self.fbo)
+        # glBindFramebuffer(GL_READ_FRAMEBUFFER, self.fbo)
         self.unbind()
         for i, texture in enumerate(self.textures):
             glActiveTexture(GL_TEXTURE0 + i)
@@ -81,10 +86,10 @@ class GeometryBuffer(object):
 
 class ShadowMapBuffer(GeometryBuffer):
     TEXTURE_TYPE_SHADOW = 0
-    NUM_TEXTURES        = 1
+    NUM_TEXTURES = 1
 
     def __init__(self):
-        self.WIDTH  = globals.tactical_screen.x
+        self.WIDTH = globals.tactical_screen.x
         self.HEIGHT = globals.tactical_screen.y
         super(ShadowMapBuffer, self).__init__(self.WIDTH, self.HEIGHT)
 
@@ -93,7 +98,7 @@ class ShadowMapBuffer(GeometryBuffer):
         if self.NUM_TEXTURES == 1:
             # Stupid inconsistent interface
             self.textures = [self.textures]
-        #self.depth_texture = glGenTextures(1)
+        # self.depth_texture = glGenTextures(1)
         glActiveTexture(GL_TEXTURE0)
 
         for i in range(self.NUM_TEXTURES):
@@ -101,16 +106,17 @@ class ShadowMapBuffer(GeometryBuffer):
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, None)
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-            glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 +
-                                   i, GL_TEXTURE_2D, self.textures[i], 0)
+            glFramebufferTexture2D(
+                GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, self.textures[i], 0
+            )
 
-        #glBindTexture(GL_TEXTURE_2D, self.depth_texture)
-        #glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, None)
-        #glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, self.depth_texture, 0)
+        # glBindTexture(GL_TEXTURE_2D, self.depth_texture)
+        # glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, None)
+        # glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, self.depth_texture, 0)
         glDrawBuffers([GL_COLOR_ATTACHMENT0])
 
         if glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE:
-            print('crapso1')
+            print("crapso1")
             raise SystemExit
 
     def bind_for_writing(self):
@@ -125,19 +131,19 @@ class ShadowMapBuffer(GeometryBuffer):
 
 class ShaderLocations(object):
     def __init__(self):
-        self.tex               = None
-        self.vertex_data       = None
-        self.tc_data           = None
-        self.colour_data       = None
-        self.using_textures    = None
+        self.tex = None
+        self.vertex_data = None
+        self.tc_data = None
+        self.colour_data = None
+        self.using_textures = None
         self.screen_dimensions = None
-        self.translation       = None
-        self.scale             = None
+        self.translation = None
+        self.scale = None
 
 
 class ShaderData(object):
     def __init__(self):
-        self.program   = None
+        self.program = None
         self.locations = ShaderLocations()
         self.dimensions = (0, 0, 0)
 
@@ -147,14 +153,16 @@ class ShaderData(object):
         state.update()
 
     def load(self, name, uniforms, attributes):
-        vertex_name, fragment_name = (os.path.join('drawing', 'shaders', '%s_%s.glsl' %
-                                                   (name, typeof)) for typeof in ('vertex', 'fragment'))
+        vertex_name, fragment_name = (
+            os.path.join("drawing", "shaders", "%s_%s.glsl" % (name, typeof))
+            for typeof in ("vertex", "fragment")
+        )
         codes = []
         for name in vertex_name, fragment_name:
-            with open(name, 'rb') as f:
+            with open(name, "rb") as f:
                 data = f.read()
             codes.append(data)
-        VERTEX_SHADER   = shaders.compileShader(codes[0], GL_VERTEX_SHADER)
+        VERTEX_SHADER = shaders.compileShader(codes[0], GL_VERTEX_SHADER)
         FRAGMENT_SHADER = shaders.compileShader(codes[1], GL_FRAGMENT_SHADER)
         self.program = glCreateProgram()
         shads = (VERTEX_SHADER, FRAGMENT_SHADER)
@@ -167,7 +175,7 @@ class ShaderData(object):
         self.program.check_linked()
         for shader in shads:
             glDeleteShader(shader)
-        #self.program    = shaders.compileProgram(VERTEX_SHADER,FRAGMENT_SHADER)
+        # self.program    = shaders.compileProgram(VERTEX_SHADER,FRAGMENT_SHADER)
         for (namelist, func) in ((uniforms, glGetUniformLocation), (attributes, glGetAttribLocation)):
             for name in namelist:
                 setattr(self.locations, name, func(self.program, name))
@@ -178,10 +186,10 @@ class ShaderData(object):
 
 class GeometryShaderData(ShaderData):
     def fragment_shader_attrib_binding(self):
-        glBindFragDataLocation(self.program, 0, 'diffuse')
-        glBindFragDataLocation(self.program, 1, 'normal')
-        glBindFragDataLocation(self.program, 2, 'displacement')
-        glBindFragDataLocation(self.program, 3, 'occlude')
+        glBindFragDataLocation(self.program, 0, "diffuse")
+        glBindFragDataLocation(self.program, 1, "normal")
+        glBindFragDataLocation(self.program, 2, "displacement")
+        glBindFragDataLocation(self.program, 3, "occlude")
 
 
 class State(object):
@@ -207,13 +215,13 @@ class State(object):
         if self.shader.locations.translation is not None:
             glUniform2f(self.shader.locations.translation, pos.x, pos.y)
         if self.shader.locations.scale is not None:
-            #glUniform2f(self.shader.locations.scale, scale.x, scale.y)
+            # glUniform2f(self.shader.locations.scale, scale.x, scale.y)
             glUniform2f(self.shader.locations.scale, 1, 1)
 
 
 class UIBuffers(object):
     """Simple storage for ui_buffers that need to be drawn at the end of the frame after the scene has been fully
-rendered"""
+    rendered"""
 
     def __init__(self):
         self.reset()
@@ -236,23 +244,23 @@ rendered"""
             if local_state:
                 state.update(*local_state)
 
-            #args[-1].use()
+            # args[-1].use()
             func(*args)
             if local_state:
                 state.update()
 
 
-z_max            = 10000
-light_shader     = ShaderData()
-geom_shader      = GeometryShaderData()
-default_shader   = ShaderData()
+z_max = 10000
+light_shader = ShaderData()
+geom_shader = GeometryShaderData()
+default_shader = ShaderData()
 passthrough_shader = ShaderData()
-shadow_shader    = ShaderData()
-state            = State(geom_shader)
-ui_buffers       = UIBuffers()
-gbuffer          = None
-shadow_buffer    = None
-tactical_buffer  = None
+shadow_shader = ShaderData()
+state = State(geom_shader)
+ui_buffers = UIBuffers()
+gbuffer = None
+shadow_buffer = None
+tactical_buffer = None
 
 
 def init(w, h):
@@ -261,32 +269,72 @@ def init(w, h):
     """
     global gbuffer, shadow_buffer, tactical_buffer
 
-    default_shader.load('default',
-                        uniforms=('tex', 'translation', 'scale',
-                                  'screen_dimensions',
-                                  'using_textures'),
-                        attributes=('vertex_data',
-                                    'tc_data',
-                                    'colour_data'))
-
-
+    default_shader.load(
+        "default",
+        uniforms=("tex", "translation", "scale", "screen_dimensions", "using_textures"),
+        attributes=("vertex_data", "tc_data", "colour_data"),
+    )
 
     glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    #set_render_dimensions(w, h, z_max)
+    # set_render_dimensions(w, h, z_max)
 
     glEnable(GL_TEXTURE_2D)
     glEnable(GL_BLEND)
     glEnable(GL_DEPTH_TEST)
-    glAlphaFunc(GL_GREATER, 0.25);
+    glAlphaFunc(GL_GREATER, 0.25)
     glEnable(GL_ALPHA_TEST)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+
+class Shake:
+    def __init__(self):
+        self.radius = None
+        self.end = None
+        self.last = None
+        self.amount = Point(0, 0)
+        self.duration = 0
+
+    def set(self, radius, duration):
+        self.radius = radius
+        self.end = globals.t + duration
+        self.duration = duration
+
+    def get_shake(self):
+        if self.last is None:
+            self.last = globals.t
+            return
+
+        elapsed = globals.t - self.last
+        self.last = globals.t
+
+        if self.end:
+            if globals.t > self.end:
+                self.end = None
+                self.amount = Point(0, 0)
+                return None
+            else:
+                left = (self.end - globals.t) / self.duration
+                radius = left * self.radius
+                self.amount = Point(random.random() * radius, random.random() * radius)
+                return self.amount
+
+
+shake = Shake()
+
+
+def shake_screen(radius, duration):
+    shake.set(radius, duration)
 
 
 def reset_state():
     state.shader.use()
     state.reset()
+
+    shake_amount = shake.get_shake()
+    if shake_amount:
+        translate(shake_amount.x, shake_amount.y, 0)
 
 
 def translate(x, y, z):
@@ -300,9 +348,9 @@ def scale(x, y, z):
 
 
 def new_frame():
-    #ui_buffers.reset()
-    #geom_shader.use()
-    #gbuffer.bind_for_writing()
+    # ui_buffers.reset()
+    # geom_shader.use()
+    # gbuffer.bind_for_writing()
     default_shader.use()
     glDepthMask(GL_TRUE)
     glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -322,12 +370,13 @@ def end_frame():
     default_shader.use()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
+
 def draw_ui():
     default_shader.use()
-    #glDepthMask(GL_TRUE)
-    #glEnable(GL_DEPTH_TEST)
-    #glEnable(GL_BLEND)
-    #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    # glDepthMask(GL_TRUE)
+    # glEnable(GL_DEPTH_TEST)
+    # glEnable(GL_BLEND)
+    # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     ui_buffers.draw()
 
 
@@ -344,13 +393,18 @@ def end_frame_tactical():
     # do the mouse light
     quad_buffer = globals.shadow_quadbuffer
     glEnableVertexAttribArray(shadow_shader.locations.vertex_data)
-    glVertexAttribPointer(shadow_shader.locations.vertex_data, 3,
-                          GL_FLOAT, GL_FALSE, 0, quad_buffer.vertex_data)
+    glVertexAttribPointer(
+        shadow_shader.locations.vertex_data, 3, GL_FLOAT, GL_FALSE, 0, quad_buffer.vertex_data
+    )
     for light in globals.shadow_lights:
         glUniform2f(shadow_shader.locations.light_pos, *light.screen_pos[:2])
         glUniform1f(shadow_shader.locations.light_radius, light.radius_pixels)
-        glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT,
-                       quad_buffer.indices[light.shadow_index * 4:(light.shadow_index + 1) * 4])
+        glDrawElements(
+            GL_QUADS,
+            4,
+            GL_UNSIGNED_INT,
+            quad_buffer.indices[light.shadow_index * 4 : (light.shadow_index + 1) * 4],
+        )
 
     shadow_buffer.bind_for_reading(gbuffer.NUM_TEXTURES)
     tactical_buffer.bind_for_writing()
@@ -366,7 +420,7 @@ def end_frame_tactical():
     timeofday = globals.tiles.timeofday
     quad_buffer = globals.light_quads
     sunlight_dir, sunlight_colour, ambient_colour, ambient_attenuation = timeofday.daylight()
-    #ambient_colour = timeofday.ambient()
+    # ambient_colour = timeofday.ambient()
 
     glUniform1i(light_shader.locations.light_type, 3)
     glUniform3f(light_shader.locations.directional_light_dir, *sunlight_dir)
@@ -374,8 +428,9 @@ def end_frame_tactical():
     glUniform3f(light_shader.locations.ambient_colour, *ambient_colour)
     glUniform1f(light_shader.locations.ambient_attenuation, ambient_attenuation)
     glEnableVertexAttribArray(light_shader.locations.vertex_data)
-    glVertexAttribPointer(light_shader.locations.vertex_data, 3,
-                          GL_FLOAT, GL_FALSE, 0, quad_buffer.vertex_data)
+    glVertexAttribPointer(
+        light_shader.locations.vertex_data, 3, GL_FLOAT, GL_FALSE, 0, quad_buffer.vertex_data
+    )
 
     # This is the ambient light box around the whole screen for sunlight
     glDrawElements(GL_QUADS, quad_buffer.current_size, GL_UNSIGNED_INT, quad_buffer.indices)
@@ -387,14 +442,15 @@ def end_frame_tactical():
     glUniform3f(light_shader.locations.directional_light_dir, *nightlight_dir)
     glUniform3f(light_shader.locations.light_colour, *nightlight_colour)
     glEnableVertexAttribArray(light_shader.locations.vertex_data)
-    glVertexAttribPointer(light_shader.locations.vertex_data, 3,
-                          GL_FLOAT, GL_FALSE, 0, quad_buffer.vertex_data)
+    glVertexAttribPointer(
+        light_shader.locations.vertex_data, 3, GL_FLOAT, GL_FALSE, 0, quad_buffer.vertex_data
+    )
     glDrawElements(GL_QUADS, quad_buffer.current_size, GL_UNSIGNED_INT, quad_buffer.indices)
 
     # scale(globals.tiles.zoom,globals.tiles.zoom,1)
 
     translate(-globals.tiles.viewpos.pos.x, -globals.tiles.viewpos.pos.y, 0)
-    #glUniform2f(light_shader.locations.scale, 0.33333, 0.3333)
+    # glUniform2f(light_shader.locations.scale, 0.33333, 0.3333)
 
     for light_list, typ in ((globals.shadow_lights, 2), (globals.non_shadow_lights, 3)):
         glUniform1i(light_shader.locations.light_type, typ)
@@ -407,10 +463,17 @@ def end_frame_tactical():
             glUniform1f(light_shader.locations.light_radius, light.radius_pixels)
             glUniform1i(light_shader.locations.shadow_index, light.shadow_index)
 
-            glVertexAttribPointer(light_shader.locations.vertex_data, 3, GL_FLOAT,
-                                  GL_FALSE, 0, light.quad_buffer.vertex_data[:4])
-            glDrawElements(GL_QUADS, light.quad_buffer.current_size,
-                           GL_UNSIGNED_INT, light.quad_buffer.indices)
+            glVertexAttribPointer(
+                light_shader.locations.vertex_data,
+                3,
+                GL_FLOAT,
+                GL_FALSE,
+                0,
+                light.quad_buffer.vertex_data[:4],
+            )
+            glDrawElements(
+                GL_QUADS, light.quad_buffer.current_size, GL_UNSIGNED_INT, light.quad_buffer.indices
+            )
 
     glDisableVertexAttribArray(light_shader.locations.vertex_data)
 
@@ -418,19 +481,26 @@ def end_frame_tactical():
 
     tactical_buffer.bind_for_reading(0)
     reset_state()
-    #glClearColor(0.0, 0.0, 0.0, 1.0)
+    # glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glEnableVertexAttribArray(passthrough_shader.locations.vertex_data)
     glEnableVertexAttribArray(passthrough_shader.locations.tc_data)
-    #glUniform2f(passthrough_shader.locations.scale, 0.33333, 0.3333)
-    glVertexAttribPointer(passthrough_shader.locations.vertex_data, 3, GL_FLOAT,
-                          GL_FALSE, 0, globals.screen_quadbuffer.vertex_data)
-    glVertexAttribPointer(passthrough_shader.locations.tc_data, 2,
-                          GL_FLOAT, GL_FALSE, 0, drawing.constants.full_tc)
+    # glUniform2f(passthrough_shader.locations.scale, 0.33333, 0.3333)
+    glVertexAttribPointer(
+        passthrough_shader.locations.vertex_data,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        globals.screen_quadbuffer.vertex_data,
+    )
+    glVertexAttribPointer(
+        passthrough_shader.locations.tc_data, 2, GL_FLOAT, GL_FALSE, 0, drawing.constants.full_tc
+    )
 
     glDrawElements(GL_QUADS, quad_buffer.current_size, GL_UNSIGNED_INT, quad_buffer.indices)
 
-    #glBlitFramebuffer(0, 0, globals.tactical_screen.x, globals.tactical_screen.y, 0, 0, globals.tactical_screen.x, globals.tactical_screen.y, GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    # glBlitFramebuffer(0, 0, globals.tactical_screen.x, globals.tactical_screen.y, 0, 0, globals.tactical_screen.x, globals.tactical_screen.y, GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
 
 def set_render_dimensions(x, y, z):
@@ -464,10 +534,10 @@ def draw_all(quad_buffer, texture):
     draw a quadbuffer with with a vertex array, texture coordinate array, and a colour
     array
     """
-    #if quad_buffer.is_ui:
+    # if quad_buffer.is_ui:
     #    ui_buffers.add(quad_buffer, texture)
     #    return
-    #draw_all_now_normals(quad_buffer, texture, geom_shader)
+    # draw_all_now_normals(quad_buffer, texture, geom_shader)
     draw_all_now(quad_buffer, texture, default_shader)
 
 
@@ -509,7 +579,7 @@ def draw_all_now_normals(quad_buffer, texture, shader):
 def draw_all_now(quad_buffer, texture, shader):
     # This is a copy paste from the above function, but this is the inner loop of the program, and we need it to be fast.
     # I'm not willing to put conditionals around the normal lines, so I made a copy of the function without them
-    #shader.use()
+    # shader.use()
     glActiveTexture(GL_TEXTURE0)
     glBindTexture(GL_TEXTURE_2D, texture.texture)
     glUniform1i(shader.locations.using_textures, 1)
@@ -549,6 +619,7 @@ def draw_no_texture_now(quad_buffer, shader):
 
     glDisableVertexAttribArray(shader.locations.vertex_data)
     glDisableVertexAttribArray(shader.locations.colour_data)
+
 
 def line_width(width):
     glEnable(GL_LINE_SMOOTH)

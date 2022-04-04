@@ -3,6 +3,6 @@ https://commons.wikimedia.org/wiki/File:Musopen_-_In_the_Hall_Of_The_Mountain_Ki
 Tiles from:
 http://opengameart.org/content/dungeon-crawl-32x32-tiles
 player:
- www.lonegames.net
+www.lonegames.net
 monsters:
 Stephen Challener (Redshrike), Matthew Nash, Tunicate, Ben "Cookiez" Potter (with a link to this page: http://cookiez999.deviantart.com/), Charles Gabriel, as noted in description. Also include a link to OpenGameArt.org (https://opengameart.org/content/lpc-in-battle-rpg-sprites)

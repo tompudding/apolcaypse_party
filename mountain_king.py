@@ -3,7 +3,6 @@ import ui
 import globals
 import drawing
 from globals.types import Point
-import sounds
 import game
 
 
@@ -26,7 +25,7 @@ def init():
     globals.ui_buffer = drawing.QuadBuffer(131072)
     globals.screen_relative = drawing.QuadBuffer(131072, ui=True)
     globals.line_buffer = drawing.LineBuffer(131072)
-    globals.sounds = sounds.Sounds()
+    # globals.sounds = sounds.Sounds()
     globals.music_pos = 0
 
     globals.mouse_relative_text = drawing.QuadBuffer(1024, ui=True, mouse_relative=True)
@@ -34,7 +33,8 @@ def init():
     globals.mouse_screen = Point(0, 0)
     globals.tiles = None
 
-    pygame.init()
+    pygame.mixer.init(frequency=48000, allowedchanges=0)
+    # pygame.init()
     screen = pygame.display.set_mode((w, h), pygame.OPENGL | pygame.DOUBLEBUF)
     pygame.display.set_caption("To the Beat of the Mountain King")
     # pygame.mouse.set_visible(False)

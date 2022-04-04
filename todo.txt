@@ -1,0 +1,15 @@
+5) sort out difficulties to be more sensible
+
+
+nice to haves:
+--------------
+screen shake
+high scores
+ghost blasts
+hit effects
+
+done:
+4) Fix the weird timing issue; it seems the audio races ahead by the end of the song vs. seeking to it. If that's universal it's not so bad, but if it's something to do with sampling rate we're fucked. Maybe? I don't know why but forcing 48000 seems to work
+1) previous runs and gaps only works once; it needs to allow easy - > medium -> hard -> expert
+2) Pop up a message when the difficulty increased
+3) Tell the user when they've finished rather than just crashing
