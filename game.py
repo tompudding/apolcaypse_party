@@ -1260,9 +1260,9 @@ class GameView(ui.UIRoot):
         self.miss_streak = 0
         pygame.mixer.music.stop()
         self.difficulty = self.main_menu.get_difficulty()
+        self.previous_runs = 0
         self.setup_player()
         self.setup_tracks()
-        self.previous_runs = 0
         self.fade_text.disable()
 
     def resume(self, pos):
