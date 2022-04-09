@@ -1,0 +1,9 @@
+v1.03
+-----
+BUGFIX: Fix restart after successful completion of a difficulty level (The notes
+were getting put at the same position you were already at but the time was reset
+so you'd have to wait 2.5 minutes to play!)
+
+v1.02
+-----
+Initial release for LD50 Jam entry
