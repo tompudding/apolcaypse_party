@@ -3,12 +3,11 @@ import PyInstaller
 
 block_cipher = None
 
-
 a = Analysis(
-    ["mountain_king.py", "mountain_king.spec"],
-    pathex=["/home/pudding/Projects/mountain_king"],
-    binaries=None,
-    datas=None,
+    ["mountain_king.py"],
+    pathex=["/home/pudding/Projects/ludum_dare_entries/mountain_king"],
+    # binaries=[(pymunk.chipmunk_path, ".")],
+    datas=[],
     hiddenimports=PyInstaller.utils.hooks.collect_submodules("pkg_resources"),
     hookspath=[],
     runtime_hooks=[],
@@ -18,23 +17,23 @@ a = Analysis(
     cipher=block_cipher,
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-image_tree = Tree("/home/pudding/Projects/mountain_king/resource", prefix="resource")
-shader_tree = Tree("/home/pudding/Projects/mountain_king/drawing", prefix="drawing")
-
-a.datas += image_tree
+# image_tree = Tree("/src/dinosmustdie/", prefix="resource")
+shader_tree = Tree("drawing", prefix="drawing")
+resource = Tree("resource", prefix="resource")
+# a.datas += image_tree
 a.datas += shader_tree
+a.datas += resource
 
 exe = EXE(
     pyz,
     a.scripts,
-    # a.binaries,
-    # a.zipfiles,
-    # a.datas,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     name="mountain_king",
     debug=False,
     strip=False,
     upx=True,
     console=True,
-    exclude_binaries=1,
+    exclude_binaries=0,
 )
-dist = COLLECT(exe, a.binaries, a.zipfiles, a.datas, name="mountain_king")

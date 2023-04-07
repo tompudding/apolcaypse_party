@@ -4,10 +4,13 @@ import globals
 import drawing
 from globals.types import Point
 import game
+import sys
 
 
 def init():
     """Initialise everything. Run once on startup"""
+    if hasattr(sys, "_MEIPASS"):
+        os.chdir(sys._MEIPASS)
     w, h = (1280, 720)
 
     globals.dirs = globals.types.Directories("resource")

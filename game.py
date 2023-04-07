@@ -859,7 +859,6 @@ class Track:
         for hit_block in hit_blocks:
             # Only permit this if it's within the right amount of time
             hit_time = (globals.music_pos - self.parent.previous_runs) - hit_block.note.time
-            print(f"{hit_time=}")
             window = self.window_before if hit_time < 0 else self.window_after
             if abs(hit_time) < window:
                 self.parent.hit(hit_block)
